@@ -136,6 +136,7 @@ function showError(message) {
   $('day-title').textContent = calendar?.days[route.day]?.title ?? dateLabel(route.day);
   $('day-rank').textContent = 'CALENDARIUM ROMANUM · 1962';
   $('flow').hidden = true;
+  $('flow').replaceChildren();
   $('reading-message').hidden = false;
   $('reading-message').replaceChildren();
   const text = document.createElement('p');
@@ -446,7 +447,10 @@ $('month-button').addEventListener('click', () => {
   const opening = $('month-panel').hidden;
   $('month-panel').hidden = !opening;
   $('month-button').setAttribute('aria-expanded', String(opening));
-  if (opening) { calendarMonth = monthKey(listAnchor ?? route.day); renderCalendarMonth(); }
+  if (!opening) return;
+  calendarMonth = monthKey(listAnchor ?? route.day);
+  renderCalendarMonth();
+  $('month-panel').scrollIntoView({ block: 'nearest', behavior: 'instant' });
 });
 
 function holdPlace() {

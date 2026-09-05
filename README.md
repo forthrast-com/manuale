@@ -24,7 +24,9 @@ GitHub Pages, with no runtime server, account, analytics, or third-party request
 - **Propria** reads the day's proper alone: introit, collect, epistle, gradual,
   gospel, offertory, secret, preface, communion, postcommunion, without the
   ordinary between them. Which blocks those are is derived from the corpus
-  rather than listed by hand; see [docs/sources.md](docs/sources.md).
+  rather than listed by hand; see [docs/sources.md](docs/sources.md). Printing
+  that view gives a propers sheet for the day, chrome stripped and the
+  liturgical colour kept.
 - The calendar lists the days around the one you are reading and opens a whole
   month on request. Both colour each day by its rite and set Sundays and
   first-class feasts in bold. Typing a date aims the list at it; opening it

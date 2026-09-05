@@ -317,7 +317,13 @@ progress { width: 100%; accent-color: var(--accent); }
 @media print {
   :root { --paper: white; --ink: black; }
   body, body[data-layout="pages"] { display: block; height: auto; overflow: visible; }
-  .masthead, .desktop-index, .office-bar, .page-bar, dialog, .toast { display: none; }
+  .masthead, .desktop-index, .office-bar, .page-bar, dialog, .toast,
+  #reading-message, .skip-link { display: none; }
+  /* Printing while Propria is chosen gives a propers sheet for the day, so
+     keep a section off the foot of a page where it can be helped. */
+  .flow section { break-inside: auto; }
+  .flow .section-title { break-after: avoid; }
+  .flow p { break-inside: avoid; }
   .workspace, .reader-shell, body[data-layout="pages"] .reader-shell { display: block; padding: 0; border: 0; }
   .reading, body[data-layout="pages"] .reading { overflow: visible; }
   .flow, body[data-layout="pages"] .flow { height: auto; columns: auto; transform: none !important; font-size: 11pt; }
