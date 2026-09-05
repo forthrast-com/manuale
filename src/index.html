@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="la">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f8f5ed">
+    <meta name="description" content="Missale Romanum et Breviarium Romanum, 1962. Textus Latini integri, etiam sine interrete.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Manuale · Missale et Breviarium</title>
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="preload" href="./fonts/fraunces.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="./fonts/im_fell_english.ttf" as="font" type="font/ttf" crossorigin>
+    <script type="module" src="./app.mjs"></script>
+  </head>
+  <body data-layout="scroll">
+    <a class="skip-link" href="#reading">Ad textum</a>
+    <header class="masthead">
+      <p class="masthead-edition">Missale<br>Breviarium<span>MCMLXII</span></p>
+      <a class="wordmark" href="./" aria-label="Manuale · hodie">manuale</a>
+      <div class="header-actions">
+        <button id="offline-button" class="icon-button" aria-label="Dies servati" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4"/></svg><span id="saved-indicator" class="saved-indicator" hidden></span></button>
+        <button id="settings-button" class="type-button" aria-label="Forma legendi" aria-haspopup="dialog">Aa</button>
+      </div>
+      <button id="date-button" class="date-button" aria-haspopup="dialog"><span id="date-label">Calendarium</span><span aria-hidden="true">⌄</span></button>
+    </header>
+
+    <div class="workspace">
+      <aside class="desktop-index" aria-label="Index"><div class="index-heading"><span id="index-name">Ordo Missæ</span><span class="edition">1962</span></div><nav id="desktop-toc" aria-label="Partes ritus"></nav><div class="sidebar-foot"><span>LATINE · INTEGRE</span><button class="text-button" id="sources-button">De hoc libro ↗</button></div></aside>
+
+      <main id="main" class="reader-shell">
+        <div class="office-bar">
+          <div class="segmented" role="group" aria-label="Liber"><button id="mass-button" aria-pressed="true">Missa</button><button id="office-button" aria-pressed="false">Officium</button></div>
+          <select id="hour-select" aria-label="Hora canonica" hidden><option value="Matutinum">Matutinum</option><option value="Laudes">Laudes</option><option value="Prima">Prima</option><option value="Tertia">Tertia</option><option value="Sexta">Sexta</option><option value="Nona">Nona</option><option value="Vespera">Vesperæ</option><option value="Completorium">Completorium</option></select>
+          <select id="mass-type" aria-label="Forma Missæ"><option value="cantata">Sollemnis</option><option value="lecta">Lecta</option></select>
+          <select id="office-type" aria-label="Forma Officii" hidden><option value="privatim">Privatim</option><option value="choro">In choro</option></select>
+          <select id="mass-number" aria-label="Missa huius diei" hidden><option value="1">Missa I</option><option value="2">Missa II</option><option value="3">Missa III</option></select>
+          <select id="votive-select" aria-label="Proprium Missæ"><option value="">De die</option></select>
+        </div>
+        <div class="day-heading"><p id="day-rank" class="eyebrow">MISSALE ROMANUM · MCMLXII</p><h1 id="day-title">Missale et Breviarium</h1></div>
+        <div id="reading" class="reading" tabindex="0" aria-label="Textus liturgicus" aria-busy="true"><article id="flow" class="flow"></article><div id="reading-message" class="reading-message" role="status"><p>Textus parantur…</p></div></div>
+        <footer class="page-bar" aria-label="Navigatio">
+          <button id="top-button" class="running-title" aria-label="Ad initium libri"><span id="current-section">Ordo Missæ</span><span aria-hidden="true">↑</span></button>
+          <button id="previous-page" class="page-arrow" aria-label="Pagina præcedens" disabled><span aria-hidden="true">←</span></button>
+          <button id="index-button" class="page-position" aria-haspopup="dialog" aria-label="Index"><span id="page-count">Index</span><span class="index-mark" aria-hidden="true">☷</span></button>
+          <button id="next-page" class="page-arrow" aria-label="Pagina sequens" disabled><span aria-hidden="true">→</span></button>
+          <div class="progress-track" aria-hidden="true"><div id="progress-fill"></div></div>
+        </footer>
+      </main>
+    </div>
+    <div id="announcement" class="sr-only" aria-live="polite"></div>
+    <div id="toast" class="toast" role="status" hidden></div>
+
+    <dialog id="index-dialog" aria-labelledby="toc-title"><header class="dialog-header"><h2 id="toc-title">Index</h2><button class="close-button" data-close aria-label="Claude">×</button></header><nav id="mobile-toc" aria-label="Partes ritus"></nav></dialog>
+    <dialog id="calendar-dialog" aria-labelledby="calendar-title"><header class="dialog-header"><h2 id="calendar-title">Calendarium</h2><button class="close-button" data-close aria-label="Claude">×</button></header><div class="dialog-body"><div class="calendar-controls"><button id="previous-day" class="outline-button" aria-label="Dies præcedens">←</button><input id="date-input" type="date" aria-label="Dies"><button id="next-day" class="outline-button" aria-label="Dies sequens">→</button><button id="today-button" class="outline-button">Hodie</button></div><p class="small-note">Calendarium Romanum generale · 1962</p><div id="calendar-days" class="calendar-days"></div><p id="date-range" class="small-note"></p></div></dialog>
+    <dialog id="settings-dialog" aria-labelledby="settings-title"><header class="dialog-header"><h2 id="settings-title">Forma legendi</h2><button class="close-button" data-close aria-label="Claude">×</button></header><div class="dialog-body settings-body">
+      <label class="setting-row" for="font-size"><span>Litteræ</span><select id="font-size"><option value="0.8">Minimæ · 80%</option><option value="0.9">Parvæ · 90%</option><option value="1">Mediæ · 100%</option><option value="1.2">Magnæ · 120%</option><option value="1.4">Maximæ · 140%</option></select></label>
+      <label class="setting-row" for="theme"><span>Color</span><select id="theme"><option value="auto">Automaticus</option><option value="light">Diurnus</option><option value="dark">Nocturnus</option></select></label>
+      <label class="setting-row" for="layout"><span>Lectio</span><select id="layout"><option value="scroll">Continua</option><option value="pages">Paginæ</option></select></label>
+      <label class="setting-row" for="show-rubrics"><span>Rubricæ</span><input id="show-rubrics" type="checkbox" checked></label>
+      <label class="setting-row" for="keep-awake"><span>Scrinium maneat accensum</span><input id="keep-awake" type="checkbox"></label>
+      <p id="wake-status" class="small-note" hidden></p>
+      <p class="small-note">Locus legendi sponte servatur. Partes ritus in indice inveniuntur.</p>
+      <div class="about"><h3>De hoc libro</h3><p>Textus integri ex <a href="https://github.com/DivinumOfficium/divinum-officium" target="_blank" rel="noreferrer">Divinum Officium</a>, iuxta rubricas anni 1960 et libros anni 1962.</p><p>Calendarium generale. Festa propria et Missæ votivæ loci differre possunt.</p><p>Missæ votivæ ad sequendam celebrationem eliguntur. Non omnes variationes aut commemorationes particulares continentur.</p><p>Ad Officium cum sacerdote: «In choro».</p><p>Programma ope intelligentiæ artificialis scriptum («GPT» et «Claude»); textus liturgicus integer ex fonte, nullo verbo a machina generato.</p><p><a href="./sources.html">Fontes et notæ</a> · <a href="./licences.txt">Licentiæ</a></p><p class="edition">MANUALE · MCMLXII</p></div>
+    </div></dialog>
+    <dialog id="offline-dialog" aria-labelledby="offline-title"><header class="dialog-header"><h2 id="offline-title">Sine interrete</h2><button class="close-button" data-close aria-label="Claude">×</button></header><div class="dialog-body">
+      <p>Dies semel aperti servantur. Ad plures dies præparandos:</p>
+      <div class="download-actions"><button id="save-week" class="solid-button">Serva VII dies</button><button id="save-month" class="outline-button">Serva XXX dies</button><button id="forget-days" class="text-button">Dele servatos</button></div>
+      <p id="download-status" class="small-note" role="status"></p><progress id="download-progress" max="1" value="0" hidden></progress>
+      <p id="offline-status" class="small-note"></p><div id="saved-days" class="saved-days"></div>
+      <div class="about"><h3>Ad scrinium principale</h3><p>iPhone / iPad: in Safari, <em>Communica</em> → <em>Ad scrinium principale</em>.</p><p>Android: in menu navigatoris, <em>Installa</em> vel <em>Ad scrinium principale</em>.</p><button id="install-button" class="solid-button" hidden>Installa Manuale</button><p class="small-note">Dies prius servandi sunt. Navigator data delere potest si spatium deficit.</p></div>
+    </div></dialog>
+    <noscript><p class="noscript">Ad Manuale legendum, JavaScript activandum est.</p></noscript>
+  </body>
+</html>

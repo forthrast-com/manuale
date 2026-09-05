@@ -1,0 +1,8 @@
+[
+  {
+    "path": "web/www/missa/Latin/Sancti/10-07.txt",
+    "before": "@Sancti/9-12:Evangelium",
+    "after": "@Sancti/09-12:Evangelium",
+    "reason": "The Rosary feast references a nonexistent unpadded filename; the intended Gospel is in 09-12.txt."
+  }
+]

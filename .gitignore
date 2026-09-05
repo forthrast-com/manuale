@@ -1,0 +1,9 @@
+.DS_Store
+.direnv/
+vendor/
+scratch/
+dist/
+data/
+__pycache__/
+*.pyc
+result

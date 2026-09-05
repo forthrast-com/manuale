@@ -1,0 +1,57 @@
+name: Publish Manuale
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 1 * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+      - name: Calendar edition
+        id: edition
+        run: echo "year=$(date -u +%Y)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            vendor
+            data
+          key: manuale-${{ runner.os }}-${{ steps.edition.outputs.year }}-${{ hashFiles('sources.json', 'source_patches.json', 'tools/fetch_source.py', 'tools/generate.py', 'tools/liturgy.py', 'flake.lock') }}
+          # Reuse the source checkout and any still-valid day packs when the
+          # importer changes. The year stays in the prefix so a rollover starts
+          # clean rather than inheriting packs from outside the new range.
+          restore-keys: |
+            manuale-${{ runner.os }}-${{ steps.edition.outputs.year }}-
+      - name: Generate the current and following calendar years
+        run: nix develop --command make data
+      - name: Verify and build
+        run: nix develop --command sh -c 'make test && make build'
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
