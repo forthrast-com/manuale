@@ -166,6 +166,24 @@ class OrdinaryDerivationTests(unittest.TestCase):
         self.assertFalse(marked("Exspéctans exspectávi"))
 
 
+class SpecialRiteTests(unittest.TestCase):
+    def test_only_the_holy_week_rites_lack_an_introit(self):
+        """The app uses the Introit to tell a Mass from a rite of its own.
+
+        If that ever stopped being exact, the propers view would quietly hand
+        back a fragment of Good Friday instead of refusing.
+        """
+        index = json.loads((ROOT / "data/index.json").read_text())
+        without = set()
+        for day in index["days"]:
+            payload = load_day(day)
+            for kind in ("Missa", "MissaLecta"):
+                rite = payload["rites"][kind]
+                if not any(s["title"] == "Introitus" for s in rite["sections"]):
+                    without.add(rite["title"])
+        self.assertEqual(without, {"Feria Sexta in Passione et Morte Domini", "Sabbato Sancto"})
+
+
 class CalendarAndFlowTests(unittest.TestCase):
     def test_sundays_after_pentecost_and_their_readings(self):
         # XIV Post Pentecosten on 30 August 2026 agrees with a published

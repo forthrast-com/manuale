@@ -79,6 +79,15 @@ browser with the same FNV-1a 64 over the same plain text, so the corpus travels
 without the list being shipped twice. The two implementations are pinned
 against each other by tests on both sides.
 
+Two rites are not Masses with propers set into an ordinary, but forms of their
+own: Good Friday and Holy Saturday. Lifting the proper-looking sections out of
+them returns a fragment that reads as complete while omitting the solemn
+orations and the adoration of the Cross, or the Exsultet, the prophecies, the
+litanies and the blessing of the font. The propers view refuses them instead,
+and uses the presence of an Introit to tell one case from the other: across
+both published years exactly eight rites lack one, which are these two days in
+each form. A test holds that count exact.
+
 ## Authorship
 
 The code, tooling, tests and notes in this repository were written with AI

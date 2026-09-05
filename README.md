@@ -21,6 +21,14 @@ GitHub Pages, with no runtime server, account, analytics, or third-party request
 - Continuous document scrolling, a section index, remembered place, larger
   type and true-black OLED dark mode. Screen-sized pages remain an optional
   reading mode.
+- **Propria** reads the day's proper alone: introit, collect, epistle, gradual,
+  gospel, offertory, secret, preface, communion, postcommunion, without the
+  ordinary between them. Which blocks those are is derived from the corpus
+  rather than listed by hand; see [docs/sources.md](docs/sources.md).
+- The calendar lists the days around the one you are reading and opens a whole
+  month on request. Both colour each day by its rite and set Sundays and
+  first-class feasts in bold. Typing a date aims the list at it; opening it
+  stays a separate press.
 - IM FELL English reading text, Fraunces headings, and liturgical colour at
   pigment strength rather than as a tint. Both fonts are bundled locally,
   including the Fell italic.
@@ -44,8 +52,11 @@ python3 tools/generate.py --start 2026-09-01 --end 2026-09-30
 make serve
 ```
 
-The first full generation takes several minutes. Valid existing day packs
-are reused. The default range is the current and following calendar year;
+A full generation is slow: two calendar years is 730 days and about 28 renders
+each, upwards of half an hour on a laptop and closer to fifty minutes on a
+GitHub runner. Valid existing day packs are reused, and the hash that decides
+validity covers only what shapes a pack, so editing the build around them does
+not throw them away. The default range is the current and following calendar year;
 `--start` and `--end` select a different range. The calendar explicitly shows
 which dates the current build contains. Generated files are kept in `data/`
 and `dist/`, both ignored by Git. Development scripts and disposable work

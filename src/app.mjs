@@ -111,9 +111,13 @@ function renderRite() {
   $('mass-number').hidden = !mass || Boolean(route.votive) || !payload.rites.Missa2;
   $('mass-number').value = massNumber;
   if (!mass) $('hour-select').value = route.office;
-  if (!sections.length) {
-    // Holy Week's own forms have no propers laid out this way.
-    showError('Huius ritus propria seorsum non habentur. Lege Missam totam.');
+  // Good Friday and Holy Saturday are not Masses with propers set into an
+  // ordinary; they are their own rites, and an Introit is what says so. Taking
+  // the proper sections out of them yields a fragment that looks whole while
+  // omitting the solemn orations, the adoration of the Cross, the Exsultet and
+  // the prophecies. Refuse rather than mislead.
+  if (propria && (!sections.length || !rite.sections.some(section => section.title === 'Introitus'))) {
+    showError('Hic ritus propria seorsum non habet. Lege ordinem integrum.');
     return;
   }
   // A remembered place in the propers is not a place in the whole Mass.
