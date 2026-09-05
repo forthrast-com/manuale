@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dateKey, validDate, addDays, weekday, weekdayFull, isSunday, roman, monthGrid, monthLabel, addMonths, isFirstClass, parseRoute, validatePreferences, liturgicalAccent, escapeHtml, storagePrune, isProperSection, blockId } from '../src/core.mjs';
+import { hours, dateKey, validDate, addDays, weekday, weekdayFull, isSunday, roman, monthGrid, monthLabel, addMonths, isFirstClass, parseRoute, validatePreferences, liturgicalAccent, escapeHtml, storagePrune, isProperSection, blockId, canonicalHour } from '../src/core.mjs';
 
 test('local dates do not shift to yesterday east of UTC', () => {
   assert.equal(dateKey(new Date(2026, 8, 5, 0, 5)), '2026-09-05');
@@ -157,4 +157,20 @@ test('markup and whitespace do not change a block id', () => {
   assert.equal(blockId('<b>Or\u00e9mus.</b>   '), bare);
   assert.equal(blockId('Or\u00e9mus.\n\n'), bare);
   assert.notEqual(blockId('Oremus.'), bare);
+});
+test('the hours are named for the hours they are said at', () => {
+  const at = h => canonicalHour(new Date(2026, 8, 5, h, 30));
+  assert.equal(at(3), 'Matutinum');      // the night office
+  assert.equal(at(6), 'Laudes');         // dawn
+  assert.equal(at(8), 'Prima');          // the first hour
+  assert.equal(at(10), 'Tertia');        // the third
+  assert.equal(at(12), 'Sexta');         // the sixth, at noon
+  assert.equal(at(15), 'Nona');          // the ninth
+  assert.equal(at(18), 'Vespera');
+  assert.equal(at(22), 'Completorium');
+});
+test('every hour of the clock maps to a real office', () => {
+  for (let h = 0; h < 24; h += 1) {
+    assert.ok(hours.includes(canonicalHour(new Date(2026, 8, 5, h, 0))), `hour ${h}`);
+  }
 });

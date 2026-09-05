@@ -81,6 +81,19 @@ export function monthGrid(month) {
   return cells;
 }
 
+// The little hours are named for the hours they were said at: Prime the first,
+// Terce the third, Sext the sixth, None the ninth, counted from dawn. A book
+// that knows the date may as well know the time, and open at the right office.
+const canonicalHours = [
+  [5, 'Matutinum'], [7, 'Laudes'], [9, 'Prima'], [12, 'Tertia'],
+  [14, 'Sexta'], [17, 'Nona'], [20, 'Vespera'], [24, 'Completorium'],
+];
+
+export function canonicalHour(date = new Date()) {
+  const hour = date.getHours();
+  return (canonicalHours.find(([until]) => hour < until) ?? canonicalHours.at(-1))[1];
+}
+
 export function dateKey(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }

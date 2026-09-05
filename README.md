@@ -36,6 +36,9 @@ GitHub Pages, with no runtime server, account, analytics, or third-party request
   including the Fell italic.
 - Installable on a phone. Opened days are saved automatically; download the
   next seven or thirty days, including every hour and supported Mass variant.
+- The little hours are named for the hours they were said at, so the book opens
+  the Office at the one it currently is: Terce mid-morning, Sext at noon, None
+  in the afternoon. A remembered choice still wins.
 
 ## Run locally
 

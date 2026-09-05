@@ -81,6 +81,10 @@ def main():
     version = digest.hexdigest()[:16]
     worker = (ROOT / "src/sw.js").read_text().replace("__BUILD_VERSION__", version).replace("__PRECACHE_ASSETS__", json.dumps(assets))
     (DIST / "sw.js").write_text(worker)
+    # Stamped after hashing, so the digest still describes the sources rather
+    # than itself. A reader can then say which copy they are looking at.
+    colophon = (DIST / "sources.html").read_text().replace("__BUILD_VERSION__", version)
+    (DIST / "sources.html").write_text(colophon)
     print(f"Built dist/ · {len(assets)} shell assets · version {version}")
 
 

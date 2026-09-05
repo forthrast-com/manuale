@@ -1,4 +1,4 @@
-import { hours, dateKey, validDate, dateLabel, weekday, weekdayFull, isSunday, addDays, monthKey, monthLabel, monthGrid, addMonths, isFirstClass, parseRoute, validatePreferences, storageRead, storageWrite, storagePrune, escapeHtml, liturgicalAccent, isProperSection, blockId } from './core.mjs';
+import { hours, canonicalHour, dateKey, validDate, dateLabel, weekday, weekdayFull, isSunday, addDays, monthKey, monthLabel, monthGrid, addMonths, isFirstClass, parseRoute, validatePreferences, storageRead, storageWrite, storagePrune, escapeHtml, liturgicalAccent, isProperSection, blockId } from './core.mjs';
 import { loadIndex, loadDay, savedDays, forgetDays, pruneDays, registerWorker } from './offline.mjs';
 import { Reader } from './reader.mjs';
 
@@ -91,6 +91,7 @@ function renderRite() {
   $('toc-title').textContent = name;
   $('mass-button').setAttribute('aria-pressed', String(mass));
   $('office-button').setAttribute('aria-pressed', String(!mass));
+  $('office-button').title = `Officium · hora nunc ${canonicalHour()}`;
   const propria = mass && preferences.massView === 'propria';
   // Sections carry the proper, but they carry the ordinary with it: the deacon's
   // preparation sits inside Evangelium, and the offertory prayers inside
@@ -376,8 +377,9 @@ $('top-button').addEventListener('click', () => {
 });
 $('mass-button').addEventListener('click', () => navigate(route.day, 'Missa'));
 $('office-button').addEventListener('click', () => {
-  const last = storageRead('lastHour', 'Vespera');
-  navigate(route.day, hours.includes(last) ? last : 'Vespera');
+  // A remembered choice wins; failing that, open the hour it actually is.
+  const last = storageRead('lastHour', null);
+  navigate(route.day, hours.includes(last) ? last : canonicalHour());
 });
 $('hour-select').addEventListener('change', event => { storageWrite('lastHour', event.target.value); navigate(route.day, event.target.value); });
 $('mass-number').addEventListener('change', event => { flushPosition(); massNumber = event.target.value; renderRite(); });
