@@ -352,13 +352,17 @@ $('date-form').addEventListener('submit', event => {
   // Only a submit commits. Typing 2026-0 must not navigate anywhere.
   event.preventDefault();
   const value = $('date-input').value.trim();
-  const known = validDate(value) && calendar?.days[value];
+  const known = validDate(value) && Boolean(calendar?.days[value]);
   $('date-input').setAttribute('aria-invalid', String(!known));
-  $('date-error').hidden = Boolean(known);
+  $('date-error').hidden = known;
   if (!known) {
-    $('date-error').textContent = validDate(value)
-      ? 'Hic dies nondum in libro continetur.'
-      : 'Scribe diem hoc modo: AAAA-MM-DD.';
+    // An unreadable date, a date outside the book, and a calendar that never
+    // arrived are three different problems; saying so saves a pointless retry.
+    $('date-error').textContent = !validDate(value)
+      ? 'Scribe diem hoc modo: AAAA-MM-DD.'
+      : calendar
+        ? 'Hic dies nondum in libro continetur.'
+        : 'Calendarium nondum acceptum est.';
     return;
   }
   $('date-input').value = '';
@@ -380,9 +384,14 @@ $('month-button').addEventListener('click', () => {
   if (opening) { calendarMonth = monthKey(route.day); renderCalendarMonth(); }
 });
 
-$('mass-type').addEventListener('change', event => {
+function holdPlace() {
+  // Keep the reader where it is across a setting that re-renders beneath it.
   flushPosition();
   reader.anchor = reader.capture();
+}
+
+$('mass-type').addEventListener('change', event => {
+  holdPlace();
   const chosen = event.target.value;
   preferences.massView = chosen === 'propria' ? 'propria' : 'tota';
   if (chosen !== 'propria') preferences.massType = chosen;
@@ -393,8 +402,7 @@ $('mass-type').addEventListener('change', event => {
 
 for (const [id, key] of [['theme', 'theme'], ['layout', 'layout'], ['font-size', 'fontSize'], ['show-rubrics', 'rubrics'], ['keep-awake', 'awake'], ['office-type', 'officeType']]) {
   $(id).addEventListener('change', event => {
-    flushPosition();
-    reader.anchor = reader.capture();
+    holdPlace();
     preferences[key] = event.target.type === 'checkbox' ? event.target.checked : key === 'fontSize' ? Number(event.target.value) : event.target.value;
     storageWrite('preferences', preferences);
     if (key === 'layout') reader.configure(preferences.layout);

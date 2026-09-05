@@ -23,6 +23,17 @@ def png_icon(size):
     return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 2, 0, 0, 0)) + chunk(b"IDAT", zlib.compress(rows, 9)) + chunk(b"IEND", b"")
 
 
+def prune(root, keep):
+    """Empty root, sparing keep, its contents, and the directories holding it."""
+    for path in sorted(root.rglob("*"), key=lambda path: len(path.parts), reverse=True):
+        if path == keep or keep in path.parents or path in keep.parents:
+            continue
+        if path.is_file():
+            path.unlink()
+        elif not any(path.iterdir()):
+            path.rmdir()
+
+
 def main():
     if not (ROOT / "data/index.json").exists():
         raise SystemExit("Generate liturgical data first: make data")
@@ -35,10 +46,7 @@ def main():
     # Rebuild the shell from scratch: a leftover file would otherwise be served
     # and precached forever. Day packs are kept and reconciled below.
     packs = DIST / "data/days"
-    for path in sorted(DIST.rglob("*"), key=lambda path: len(path.parts), reverse=True):
-        if path == packs or packs in path.parents:
-            continue
-        path.unlink() if path.is_file() else path.rmdir() if not any(path.iterdir()) else None
+    prune(DIST, keep=packs)
     shutil.copytree(ROOT / "src", DIST, dirs_exist_ok=True)
     packs.mkdir(parents=True, exist_ok=True)
     for day in index["days"]:

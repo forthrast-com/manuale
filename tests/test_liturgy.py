@@ -1,4 +1,5 @@
 from datetime import date
+import tempfile
 from functools import cache
 import gzip
 import hashlib
@@ -12,7 +13,7 @@ import unicodedata
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from liturgy import HOURS, parse_rite, sanitise, plain, render_rite
+from liturgy import HOURS, SPEC, parse_rite, sanitise, plain, render_rite
 
 
 def normal(value):
@@ -83,6 +84,39 @@ class ImportBoundaryTests(unittest.TestCase):
                     ids = [section["id"] for section in rite["sections"]]
                     self.assertEqual(len(ids), len(set(ids)))
                     self.assertNotIn("missing!", json.dumps(rite))
+
+
+class IndexBuildingTests(unittest.TestCase):
+    def _index(self, packs):
+        import generate
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            (output / "days").mkdir()
+            for day, payload in packs.items():
+                (output / "days" / f"{day}.json.gz").write_bytes(
+                    gzip.compress(json.dumps(payload).encode(), mtime=0))
+            with patch.object(generate, "OUTPUT", output):
+                generate.write_index()
+                return json.loads((output / "index.json").read_text())
+
+    def _pack(self, day, **overrides):
+        import generate
+        payload = {"schema": generate.SCHEMA, "date": day, "source": SPEC["revision"],
+                   "generator": generate.GENERATOR,
+                   "rites": {"Missa": {"title": "Test", "rank": "IV. classis", "sections": []}}}
+        return payload | overrides
+
+    def test_packs_from_an_older_pin_are_skipped_not_fatal(self):
+        # A restored artifact, or a year rolling forward, leaves these behind.
+        index = self._index({
+            "2026-01-01": self._pack("2026-01-01"),
+            "2025-01-01": self._pack("2025-01-01", generator="an older importer", source="older"),
+        })
+        self.assertEqual(sorted(index["days"]), ["2026-01-01"])
+
+    def test_a_pack_contradicting_its_own_generator_is_fatal(self):
+        with self.assertRaisesRegex(ValueError, "contradicts its own generator"):
+            self._index({"2026-01-01": self._pack("2026-01-01", source="something else")})
 
 
 class CalendarAndFlowTests(unittest.TestCase):

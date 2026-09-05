@@ -60,10 +60,16 @@ def write_index():
     for path in sorted((OUTPUT / "days").glob("*.json.gz")):
         packed = path.read_bytes()
         payload = json.loads(gzip.decompress(packed))
-        if payload["source"] != SPEC["revision"] or payload["schema"] != SCHEMA:
-            raise ValueError(f"Stale data: {path}")
+        # The generator hash covers sources.json, source_patches.json and this
+        # file, so it already subsumes the revision and the schema. A pack that
+        # fails it belongs to an older pin and is simply not ours to publish;
+        # restored artifacts and rolled-forward years both leave such packs
+        # lying about. A pack that claims our generator but disagrees about
+        # either is a real contradiction, and says so.
         if payload.get("generator") != GENERATOR:
             continue
+        if payload["source"] != SPEC["revision"] or payload["schema"] != SCHEMA:
+            raise ValueError(f"Pack contradicts its own generator: {path}")
         mass = payload["rites"]["Missa"]
         days[payload["date"]] = {"title": mass["title"], "rank": mass["rank"],
                                  "bytes": len(packed), "sha256": hashlib.sha256(packed).hexdigest()}
