@@ -38,7 +38,7 @@ export class Reader {
     this.page = 0;
     this.anchor = position ?? null;
     this.flow.style.transform = '';
-    this.flow.innerHTML = rite.sections.map((section, index) => `<section id="${section.id}" aria-labelledby="${section.id}-title"><h2 class="section-title" id="${section.id}-title"><span class="section-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>${escapeHtml(section.title)}</h2>${section.blocks.map((block, i) => `<p id="${section.id}-b${i}" class="${block.kind}" data-block>${block.html}</p>`).join('')}</section>`).join('');
+    this.flow.innerHTML = rite.sections.map((section, index) => `<section id="${section.id}" data-section="${escapeHtml(section.title)}" aria-labelledby="${section.id}-title"><h2 class="section-title" id="${section.id}-title"><span class="section-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>${escapeHtml(section.title)}</h2>${section.blocks.map((block, i) => `<p id="${section.id}-b${i}" class="${block.kind}" data-block>${block.html}</p>`).join('')}</section>`).join('');
     window.scrollTo({ top: 0, behavior: 'instant' });
     this.scheduleLayout();
   }

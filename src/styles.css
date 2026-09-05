@@ -103,7 +103,9 @@ svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width:
 .edition, .eyebrow { font-size: .69rem; letter-spacing: .13em; font-weight: 400; }
 .edition { color: var(--muted); }
 #desktop-toc { overflow: auto; flex: 1; scrollbar-width: thin; scrollbar-color: var(--rule) transparent; padding: 0 6px 10px 0; }
-.toc-entry { display: grid; grid-template-columns: 22px minmax(0, 1fr); width: 100%; text-align: left; gap: 6px; padding: 9px 7px; font-size: .85rem; line-height: 1.4; color: var(--muted); border-left: 2px solid transparent; }
+.toc-entry { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; width: 100%; text-align: left; gap: 6px; padding: 9px 7px; font-size: .85rem; line-height: 1.4; color: var(--muted); border-left: 2px solid transparent; align-items: start; }
+/* A hand pointing at where you are, rather than another block of colour. */
+.toc-entry[aria-current="true"]::after { content: "\2767"; color: var(--accent); font-size: .95rem; line-height: 1.35; opacity: .85; }
 .toc-entry span:first-child { font-size: .63rem; padding-top: 3px; opacity: .8; font-variant-numeric: tabular-nums; }
 .toc-entry[aria-current="true"] { color: var(--ink); background: var(--surface); border-left-color: var(--accent); }
 .toc-entry:hover { background: var(--surface-hi); }
@@ -128,6 +130,10 @@ select { background: var(--paper); border: 1px solid var(--rule); border-radius:
 h1 { font-family: var(--font-display); font-variation-settings: "SOFT" 35, "WONK" 1; color: var(--ink); font-weight: 580; line-height: 1.17; letter-spacing: -.025em; font-size: clamp(1.65rem, 2.8vw, 2.4rem); margin: 0; text-wrap: balance; }
 .reading { position: relative; min-height: 260px; outline-offset: 6px; touch-action: pan-y pinch-zoom; }
 .flow { width: 100%; font-size: calc(1.3rem * var(--font-scale)); line-height: 1.65; overflow-wrap: break-word; }
+/* The Fell carries one discretionary ligature, ct, and everywhere at once it
+   was fussy. The angelic hymn is where a book would decorate, and it is the
+   one place the ligature falls twice: Sanctus, and Benedictus. */
+.flow section[data-section="Sanctus"] p { font-feature-settings: "dlig" 1; }
 .flow:empty { display: none; }
 .flow section { margin: 0; padding: 0; }
 .section-title { color: var(--ink); font-family: var(--font-display); font-variation-settings: "SOFT" 35, "WONK" 1; font-weight: 560; font-size: 1.5em; line-height: 1.2; letter-spacing: -.022em; margin: 1.8em 0 .75em; break-after: avoid; }
