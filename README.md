@@ -12,8 +12,9 @@ GitHub Pages, with no runtime server, account, analytics, or third-party request
 - Continuous document scrolling, a section index, remembered place, larger
   type and true-black OLED dark mode. Screen-sized pages remain an optional
   reading mode.
-- IM FELL English reading text, Fraunces headings and restrained liturgical
-  accents. Both fonts are bundled locally, including the Fell italic.
+- IM FELL English reading text, Fraunces headings, and liturgical colour at
+  pigment strength rather than as a tint. Both fonts are bundled locally,
+  including the Fell italic.
 - Installable on a phone. Opened days are saved automatically; download the
   next seven or thirty days, including every hour and supported Mass variant.
 
@@ -92,11 +93,17 @@ Mass being celebrated, not a ruling that every selection is permissible on
 every date. It doesn't express every rank, external solemnity, local proper,
 dedication, votive intention, or combination of additional collects.
 
-The faint colour accents are decorative cues derived from the rite's title,
-with overrides for the supported votives. They do not determine the texts
+The colour accents are decorative cues derived from the rite's title, with
+overrides for the supported votives. They do not determine the texts
 or assert a local vestment ruling. Marian feasts use a warm white/gold accent,
-not blue. Rubrics, response markers and crosses share the same readable
-accent; prayer text remains neutral.
+not blue. Rubrics, versal initials and crosses take the day's colour at its
+deepest, readable tier; prayer text remains neutral.
+
+Blue is not a liturgical colour here and never marks a day. It appears only as
+the response marker on white days, where gold's contrast ceiling forces the
+dullest value in the palette and the page needs a second voice. Gold is the one
+pigment that cannot be ink: bright gold is 2.44:1 on this paper, so anything
+read is set in the burnished value instead.
 
 The Mass export omits the Communion-of-the-faithful popup. The importer
 expands it in place, using the source's Communion text from *Ecce Agnus Dei*

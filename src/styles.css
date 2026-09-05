@@ -22,12 +22,22 @@
 :root {
   color-scheme: light;
   --paper: #f8f5ed;
-  --ink: #28251f;
-  --muted: #746e61;
-  --accent-light: #81652f;
-  --accent-dark: #cab37b;
+  /* The reading surface is a leaf; the chrome is the board it rests on. */
+  --board: #e6e1d4;
+  --ink: #1c1a17;
+  --muted: #655f50;
+  /* Pigment, not tint. The light values are the deepest tier of each colour,
+     because they set rubrics and versal initials, which are read. */
+  --accent-light: #7f5e0c;
+  --accent-dark: #e6c057;
   --accent: var(--accent-light);
   --rubric: var(--accent);
+  /* Lapis is not a liturgical colour. It earns its place only on white days,
+     where burnished gold is the dullest value in the set and the page needs a
+     second voice. Blue beside gold is the manuscript pairing anyway. */
+  --lapis-light: #1f4b8f;
+  --lapis-dark: #6dabf2;
+  --versicle: var(--accent);
   --surface: color-mix(in srgb, var(--accent) 6%, var(--paper));
   --surface-hi: color-mix(in srgb, var(--accent) 3%, var(--paper));
   --rule: color-mix(in srgb, var(--accent) 24%, var(--paper));
@@ -38,14 +48,16 @@
   --font-scale: 1;
   --page-gap: 48px;
 }
-[data-liturgical-colour="white"] { --accent-light: #81652f; --accent-dark: #cab37b; }
-[data-liturgical-colour="green"] { --accent-light: #4f6845; --accent-dark: #a2b491; }
-[data-liturgical-colour="red"] { --accent-light: #8c443b; --accent-dark: #d0a097; }
-[data-liturgical-colour="violet"] { --accent-light: #745874; --accent-dark: #bda5c2; }
-[data-liturgical-colour="black"] { --accent-light: #59564f; --accent-dark: #b5b1a6; }
+[data-liturgical-colour="white"] { --accent-light: #7f5e0c; --accent-dark: #e6c057;
+  --versicle: light-dark(var(--lapis-light), var(--lapis-dark)); }
+[data-liturgical-colour="green"] { --accent-light: #175f42; --accent-dark: #5ac797; }
+[data-liturgical-colour="red"] { --accent-light: #a82715; --accent-dark: #f07d6c; }
+[data-liturgical-colour="violet"] { --accent-light: #5f1c5e; --accent-dark: #d173d1; }
+[data-liturgical-colour="black"] { --accent-light: #3b332a; --accent-dark: #b8b2a5; }
 :root[data-theme="dark"] {
   color-scheme: dark;
   --paper: #000000;
+  --board: #0e0d0c;
   --ink: #e5e0d6;
   --muted: #b0a896;
   --accent: var(--accent-dark);
@@ -55,6 +67,7 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
     --paper: #000000;
+    --board: #0e0d0c;
     --ink: #e5e0d6;
     --muted: #b0a896;
     --accent: var(--accent-dark);
@@ -75,7 +88,9 @@ a { color: var(--accent); text-underline-offset: 3px; }
 button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 ::selection { color: var(--paper); background: var(--accent); }
 svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.masthead { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: min(1140px, calc(100% - 64px)); margin: 22px auto 0; padding: 15px 0 0; border-bottom: 3px double var(--rule); }
+/* Full bleed, with the inner columns still held to the text measure, so the
+   board runs edge to edge like the footer rather than floating as a card. */
+.masthead { background: var(--board); position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; margin: 0; padding: 22px max(32px, calc((100% - 1140px) / 2)) 4px; border-bottom: 3px double var(--rule); }
 .masthead::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: var(--accent); opacity: .3; }
 .masthead-edition { margin: 0; color: var(--muted); font-size: .76rem; line-height: 1.45; font-variant: small-caps; letter-spacing: .08em; }
 .masthead-edition span { display: block; font-size: .62rem; letter-spacing: .14em; margin-top: 7px; }
@@ -129,8 +144,10 @@ h1 { font-family: var(--font-display); font-variation-settings: "SOFT" 35, "WONK
 .rubric { color: var(--rubric); font-style: italic; }
 span.rubric { font-size: .85em; }
 .rubric .rubric { font-size: inherit; }
-.versicle { color: var(--rubric); font-style: normal; white-space: nowrap; margin-right: .12em; }
+.versicle { color: var(--versicle); font-style: normal; white-space: nowrap; margin-right: .12em; }
 .cross { color: var(--rubric); }
+/* A versal, not a drop cap: this is the first letter of the word itself, so it
+   stays on the line and at the reading weight the pigment can carry. */
 .initial { color: var(--rubric); font-weight: bold; }
 .verse-number { font-size: .59em; color: var(--muted); vertical-align: .1em; margin-right: .32em; }
 [data-rubrics="false"] .flow .rubric { display: none; }
@@ -143,7 +160,7 @@ span.rubric { font-size: .85em; }
 [data-rubrics="false"] .flow section:not(:has(p:not(.rubric):not(.source))) { display: none; }
 .flow section:not(:has(p:not(.source))) { display: none; }
 .flow b, .flow strong { font-weight: bold; }
-.page-bar { position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 2px max(24px, calc((100vw - 660px) / 2)) calc(2px + env(safe-area-inset-bottom)); border-top: 1px solid var(--rule); background: var(--paper); }
+.page-bar { background: var(--board); position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 2px max(24px, calc((100vw - 660px) / 2)) calc(2px + env(safe-area-inset-bottom)); border-top: 1px solid var(--rule); }
 .running-title { display: flex; align-items: center; gap: 12px; min-height: 44px; min-width: 0; padding: 0; color: var(--muted); font-size: .79rem; font-style: italic; text-align: left; }
 .running-title span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65vw; }
 .running-title span:last-child { color: var(--accent); font-style: normal; }
@@ -240,7 +257,7 @@ progress { width: 100%; accent-color: var(--accent); }
   body[data-layout="pages"] .reader-shell { height: 100%; }
 }
 @media (max-width: 520px) {
-  .masthead { width: calc(100% - 48px); margin-top: 17px; padding-top: 14px; }
+  .masthead { width: 100%; margin-top: 0; padding: 17px 24px 3px; }
   .wordmark { font-size: clamp(2.3rem, 12.3vw, 3.2rem); font-weight: 730; }
   .masthead-edition { font-size: .63rem; letter-spacing: .04em; }
   .masthead-edition span { font-size: .53rem; letter-spacing: .1em; margin-top: 6px; }

@@ -88,6 +88,25 @@ scroll-into-view in the automation tool; the visible control worked correctly.
   126 green, 112 red, 4 black. Red reaching only 15% of days is why a nine-day
   window can show none; the month view makes the distribution visible.
 
+## Palette, 5 September 2026
+
+- Every value was measured rather than chosen by eye. On cream #f8f5ed: green
+  #175f42 at 7.00:1, red #a82715 at 6.50:1, violet #5f1c5e at 10.62:1, black
+  #3b332a at 11.39:1, gold #7f5e0c at 5.49:1, lapis #1f4b8f at 7.83:1.
+- The chrome sits on #e6e1d4, which is a lower surface than the paper, so both
+  --muted and gold were darkened until they clear 4.5:1 there too: 3.88 -> 4.87
+  and 3.80 -> 4.58. Nothing in the interface sits below AA on either surface.
+- Ink moved to #1c1a17. The old #28251f was hue 40° at 22% saturation, which is
+  why the wordmark read brown rather than black.
+- Bright gold #c8971b measures 2.44:1 and fails even the 3:1 ornament floor. It
+  is not used as a text colour anywhere; gold that is read is #7f5e0c.
+- Dark mode keeps a true #000000 reading surface. Only the masthead and footer
+  lift to #0e0d0c, so the OLED benefit over the large area is unchanged. The
+  dark accents run 7.08:1 to 12.04:1 on black.
+- Vellum was tried and rejected: at 12% saturation it read as beige, and it
+  also cost contrast. Bright vermilion clears the text floor on cream (4.91:1)
+  and does not on vellum (4.47:1), so the lighter ground is the more vivid one.
+
 ## Boundaries
 
 - Actual iOS/Android installation, physical swipe behaviour and wake-lock
