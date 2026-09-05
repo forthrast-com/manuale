@@ -27,7 +27,16 @@ def git(*args, capture=False):
 
 
 def head():
-    return git("rev-parse", "HEAD", capture=True).strip()
+    """The checked-out revision, or None before the first checkout.
+
+    git init writes .git/HEAD straight away, so the file's existence says
+    nothing about whether a commit is there to resolve.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(SOURCE), "rev-parse", "--verify", "--quiet", "HEAD"],
+        text=True, capture_output=True,
+    )
+    return result.stdout.strip() or None
 
 
 def main():
@@ -40,7 +49,7 @@ def main():
     git("remote", "set-url", "origin", SPEC["repository"])
     git("sparse-checkout", "init", "--cone")
     git("sparse-checkout", "set", *DIRECTORIES)
-    if not (SOURCE / ".git/HEAD").exists() or head() != SPEC["revision"]:
+    if head() != SPEC["revision"]:
         git("fetch", "--depth", "1", "origin", SPEC["revision"])
         # Discards the previous revision's applied corrections along with it.
         git("checkout", "--detach", "--force", SPEC["revision"])
