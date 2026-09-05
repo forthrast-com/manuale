@@ -111,9 +111,23 @@ def ordinary_ids(payloads):
 GENERATOR = generator_hash()
 
 
+def reference_recipe():
+    recipe = "".join(inspect.getsource(function) for function in (block_text, block_id, ordinary_ids))
+    return hashlib.sha256((recipe + repr((ORDINARY_SHARE, VARYING_RITES))).encode()).hexdigest()
+
+
+def load_ordinary_reference():
+    reference = json.loads((ROOT / "ordinary_reference.json").read_text())
+    if (reference.get("generator") != GENERATOR
+            or reference.get("recipe") != reference_recipe()
+            or reference.get("source") != SPEC["revision"]):
+        raise ValueError("Stale ordinary reference; run python3 tools/derive_ordinary.py")
+    return reference["ordinary"]
+
+
 def write_index():
     days = {}
-    payloads = []
+    ordinary = load_ordinary_reference()
     for path in sorted((OUTPUT / "days").glob("*.json.gz")):
         packed = path.read_bytes()
         payload = json.loads(gzip.decompress(packed))
@@ -128,11 +142,10 @@ def write_index():
         if payload["source"] != SPEC["revision"] or payload["schema"] != SCHEMA:
             raise ValueError(f"Pack contradicts its own generator: {path}")
         mass = payload["rites"]["Missa"]
-        payloads.append(payload)
         days[payload["date"]] = {"title": mass["title"], "rank": mass["rank"],
                                  "bytes": len(packed), "sha256": hashlib.sha256(packed).hexdigest()}
     index = {"schema": SCHEMA, "source": SPEC, "votives": VOTIVES,
-             "ordinary": ordinary_ids(payloads), "days": days}
+             "ordinary": ordinary, "days": days}
     (OUTPUT / "index.json").write_text(json.dumps(index, ensure_ascii=False, separators=(",", ":")))
 
 
@@ -144,6 +157,7 @@ def main():
     args = parser.parse_args()
     if args.end < args.start:
         parser.error("--end must not precede --start")
+    load_ordinary_reference()
     days = [args.start + timedelta(days=i) for i in range((args.end - args.start).days + 1)]
     with ProcessPoolExecutor(max_workers=args.jobs) as pool:
         for index, (day, size) in enumerate(pool.map(generate_day, days), 1):

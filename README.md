@@ -70,6 +70,14 @@ stay visible in the project, in `tools/` and `scratch/`.
 Nothing needs npm. The flake pins Python with Beautiful Soup, Perl with CGI,
 Node for the small JS test suite, and the supporting utilities.
 
+Propers filtering uses the checked-in `ordinary_reference.json`, derived from
+the complete 2026 calendar rather than the dates in your local build. A one-day
+build therefore keeps the same propers as a full edition. After changing the
+source pin, importer or classification recipe, rebuild the reference with
+`nix develop --command python3 tools/derive_ordinary.py` before generating data.
+This reuses compatible packs or renders the two Mass forms for the reference
+year; it does not add that year to the published calendar.
+
 ## GitHub Pages
 
 Push this repository to GitHub, then choose **Settings → Pages → Source →

@@ -74,7 +74,15 @@ Votive and numbered Masses are excluded from the count. Their propers repeat
 every day by nature, so counting them would file them as ordinary and hide
 exactly the text a votive exists to supply.
 
-The resulting identifiers are stored in `data/index.json` and recomputed in the
+The reference is always the complete 2026 calendar, independently of the dates
+being published. `tools/derive_ordinary.py` writes `ordinary_reference.json`,
+including the source revision, generator fingerprint and classification recipe
+fingerprint. Generation refuses a stale reference. Compatible local packs are
+reused; otherwise the derivation renders just the two Mass forms for each day
+of that fixed year. A short development build never trains its own classifier:
+in a one-day sample every proper would otherwise look like the ordinary.
+
+The resulting identifiers are copied into `data/index.json` and recomputed in the
 browser with the same FNV-1a 64 over the same plain text, so the corpus travels
 without the list being shipped twice. The two implementations are pinned
 against each other by tests on both sides.

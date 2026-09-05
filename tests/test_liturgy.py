@@ -118,6 +118,35 @@ class IndexBuildingTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "contradicts its own generator"):
             self._index({"2026-01-01": self._pack("2026-01-01", source="something else")})
 
+    def test_short_builds_keep_propers_and_use_the_same_reference(self):
+        import generate
+        packs = {f"2026-09-{n:02}": load_day(f"2026-09-{n:02}") for n in range(1, 31)}
+        single = self._index({"2026-09-01": packs["2026-09-01"]})
+        month = self._index(packs)
+        self.assertEqual(single["ordinary"], month["ordinary"])
+        self.assertEqual(single["ordinary"], generate.load_ordinary_reference())
+        self.assertEqual(list(single["days"]), ["2026-09-01"])
+        self.assertEqual(len(month["days"]), 30)
+        ordinary = set(single["ordinary"])
+        for kind in generate.VARYING_RITES:
+            sections = packs["2026-09-01"]["rites"][kind]["sections"]
+            for title in ("Introitus", "Oratio", "Lectio", "Evangelium", "Præfatio"):
+                section = next(s for s in sections if s["title"] == title)
+                self.assertTrue(any(generate.block_id(b["html"]) not in ordinary
+                                    for b in section["blocks"]), (kind, title))
+            blocks = [b for s in sections for b in s["blocks"]]
+            preparation = next(b for b in blocks if "Súscipe, sancte Pater" in generate.block_text(b["html"]))
+            self.assertIn(generate.block_id(preparation["html"]), ordinary)
+
+    def test_stale_reference_fails_before_publishing_an_index(self):
+        import generate
+        with patch.object(generate, "GENERATOR", "changed importer"):
+            with self.assertRaisesRegex(ValueError, "Stale ordinary reference"):
+                self._index({})
+        with patch.object(generate, "ORDINARY_SHARE", 0.9):
+            with self.assertRaisesRegex(ValueError, "Stale ordinary reference"):
+                generate.load_ordinary_reference()
+
 
 class OrdinaryDerivationTests(unittest.TestCase):
     """The ordinary is derived from recurrence, not from a list of incipits."""
