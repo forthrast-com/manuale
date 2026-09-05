@@ -129,8 +129,9 @@ scroll-into-view in the automation tool; the visible control worked correctly.
   online load now deletes previously downloaded days rather than orphaning
   them. They were already unusable; the deletion is visible where the leak
   was not.
-- No GitHub repository or Pages deployment has been created. The static
-  build and Pages workflow are ready for the user's repository.
+- Published at https://manuale.forthrast.com on 5 September 2026: DNS CNAME to
+  the Pages host, certificate issued, HTTPS enforced. Installation and offline
+  storage need HTTPS, so they only become real from this point.
 - General-calendar and supported-votive coverage does not imply complete
   local propers or every rubrical combination.
 - Renaming the app keeps its original internal browser-storage namespaces,

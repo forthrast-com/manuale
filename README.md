@@ -1,5 +1,14 @@
 # manuale
 
+**[manuale.forthrast.com](https://manuale.forthrast.com)**
+
+> Built with AI assistance: **GPT-6 Astra** and **Claude Opus 5**, under human
+> direction and review. The code, tooling, tests and documentation were written
+> this way. The liturgical text was not — it is imported verbatim from Divinum
+> Officium at a pinned revision, and no prayer, rubric or translation here was
+> generated, paraphrased or reordered by a model. See
+> [How this was made](#how-this-was-made).
+
 A Latin-only pocket missal and breviary for the 1962 Roman books: the whole
 sequence, with the day's propers in place. A static, installable web app for
 GitHub Pages, with no runtime server, account, analytics, or third-party requests.
@@ -119,9 +128,9 @@ rubrical reconstruction of every local missa cantata practice.
 
 ## How this was made
 
-Manuale was built with AI assistance. Both **OpenAI GPT models** and
-**Anthropic Claude models** were used to write the application code, the build
-tooling, the tests and this documentation, under human direction and review.
+Manuale was built with AI assistance: **GPT-6 Astra** (OpenAI) and **Claude
+Opus 5** (Anthropic) wrote the application code, the build tooling, the tests
+and this documentation, under human direction and review.
 
 That assistance stops at the liturgical text, and the design of this project
 exists mostly to keep it stopped. Every prayer, rubric, antiphon and calendar
