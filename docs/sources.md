@@ -55,6 +55,30 @@ than asserting a local schedule.
 
 There are no generated prayers or machine translations in the corpus.
 
+## Ordinary and proper
+
+The propers view needs to know which blocks are the day's own and which belong
+to the ordinary, and the two are mixed inside the same section: the deacon's
+`Munda cor meum` and the blessing before the Gospel sit inside `Evangelium`,
+and the offertory prayers fill `Offertorium` around a two-block antiphon.
+
+Rather than keep a list of Latin incipits, the corpus is asked. A block that
+recurs on more than half the days of the de die Mass is the ordinary; one that
+varies is proper. Measured over a year the distribution is bimodal and the gap
+is wide: 4622 blocks appear on under 10% of days, 221 on over 90%, and nine
+fall in between. Those nine set the boundary, between the common preface at
+39.5%, which a propers sheet prints, and the Gloria's rubrics at 68.8%, which
+it does not.
+
+Votive and numbered Masses are excluded from the count. Their propers repeat
+every day by nature, so counting them would file them as ordinary and hide
+exactly the text a votive exists to supply.
+
+The resulting identifiers are stored in `data/index.json` and recomputed in the
+browser with the same FNV-1a 64 over the same plain text, so the corpus travels
+without the list being shipped twice. The two implementations are pinned
+against each other by tests on both sides.
+
 ## Authorship
 
 The code, tooling, tests and notes in this repository were written with AI

@@ -1,4 +1,4 @@
-import { hours, dateKey, validDate, dateLabel, weekday, weekdayFull, isSunday, addDays, monthKey, monthLabel, monthGrid, addMonths, isFirstClass, parseRoute, validatePreferences, storageRead, storageWrite, storagePrune, escapeHtml, liturgicalAccent, isProperSection } from './core.mjs';
+import { hours, dateKey, validDate, dateLabel, weekday, weekdayFull, isSunday, addDays, monthKey, monthLabel, monthGrid, addMonths, isFirstClass, parseRoute, validatePreferences, storageRead, storageWrite, storagePrune, escapeHtml, liturgicalAccent, isProperSection, blockId } from './core.mjs';
 import { loadIndex, loadDay, savedDays, forgetDays, pruneDays, registerWorker } from './offline.mjs';
 import { Reader } from './reader.mjs';
 
@@ -88,7 +88,16 @@ function renderRite() {
   $('mass-button').setAttribute('aria-pressed', String(mass));
   $('office-button').setAttribute('aria-pressed', String(!mass));
   const propria = mass && preferences.massView === 'propria';
-  const sections = propria ? rite.sections.filter(section => isProperSection(section.title)) : rite.sections;
+  // Sections carry the proper, but they carry the ordinary with it: the deacon's
+  // preparation sits inside Evangelium, and the offertory prayers inside
+  // Offertorium. Drop the blocks the corpus found on nearly every day.
+  const ordinary = new Set(calendar?.ordinary ?? []);
+  const sections = propria
+    ? rite.sections
+        .filter(section => isProperSection(section.title))
+        .map(section => ({ ...section, blocks: section.blocks.filter(block => !ordinary.has(blockId(block.html))) }))
+        .filter(section => section.blocks.length)
+    : rite.sections;
   $('hour-select').hidden = mass;
   $('mass-type').hidden = !mass;
   $('office-type').hidden = mass;
@@ -233,6 +242,9 @@ function renderCalendarMonth() {
 
 function showCalendar() {
   calendarMonth = monthKey(route.day);
+  $('date-input').value = dateKey();
+  $('date-input').removeAttribute('aria-invalid');
+  $('date-error').hidden = true;
   renderCalendarList();
   if (!$('month-panel').hidden) renderCalendarMonth();
   openDialog('calendar-dialog');
@@ -370,7 +382,12 @@ $('date-form').addEventListener('submit', event => {
   $('calendar-dialog').close();
   navigate(value);
 });
-$('date-input').addEventListener('input', () => {
+$('date-input').addEventListener('input', event => {
+  // Type the digits; the separators place themselves, and deleting past one
+  // removes it rather than fighting the caret back over it.
+  const digits = event.target.value.replace(/\D/g, '').slice(0, 8);
+  event.target.value = [digits.slice(0, 4), digits.slice(4, 6), digits.slice(6, 8)]
+    .filter(part => part).join('-');
   $('date-input').removeAttribute('aria-invalid');
   $('date-error').hidden = true;
 });

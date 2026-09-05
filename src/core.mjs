@@ -19,6 +19,23 @@ const properSections = new Set([
   'Praefatio', 'Communio', 'Postcommunio',
 ]);
 
+const blockIds = new Map();
+
+// FNV-1a 64 over the block's plain text, matching tools/generate.py exactly, so
+// the ordinary the corpus identified can be recognised here without shipping it.
+export function blockId(html) {
+  let id = blockIds.get(html);
+  if (id !== undefined) return id;
+  const text = String(html).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  let digest = 0xcbf29ce484222325n;
+  for (const byte of new TextEncoder().encode(text)) {
+    digest = BigInt.asUintN(64, (digest ^ BigInt(byte)) * 0x100000001b3n);
+  }
+  id = digest.toString(16).padStart(16, '0');
+  blockIds.set(html, id);
+  return id;
+}
+
 export function isProperSection(title) {
   const name = String(title).trim().replace(/\.+$/, '')
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/æ/g, 'ae').replace(/Æ/g, 'Ae');

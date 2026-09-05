@@ -119,6 +119,53 @@ class IndexBuildingTests(unittest.TestCase):
             self._index({"2026-01-01": self._pack("2026-01-01", source="something else")})
 
 
+class OrdinaryDerivationTests(unittest.TestCase):
+    """The ordinary is derived from recurrence, not from a list of incipits."""
+
+    def _rite(self, *texts):
+        return {"title": "T", "rank": "IV. classis",
+                "sections": [{"id": "s1", "title": "Introitus",
+                              "blocks": [{"html": x, "kind": "prayer"} for x in texts]}]}
+
+    def test_what_recurs_is_ordinary_and_what_varies_is_not(self):
+        import generate
+        days = [{"rites": {"Missa": self._rite("Dominus vobiscum.", f"Proper of day {n}")}}
+                for n in range(10)]
+        ordinary = set(generate.ordinary_ids(days))
+        self.assertIn(generate.block_id("Dominus vobiscum."), ordinary)
+        self.assertNotIn(generate.block_id("Proper of day 3"), ordinary)
+
+    def test_votive_propers_are_not_counted_as_ordinary(self):
+        # A votive repeats its own proper daily; counting it would erase it.
+        import generate
+        days = [{"rites": {"Missa": self._rite(f"Proper of day {n}"),
+                           "Missa-C11": self._rite("Salve, sancta parens")}} for n in range(10)]
+        self.assertNotIn(generate.block_id("Salve, sancta parens"),
+                         set(generate.ordinary_ids(days)))
+
+    def test_markup_and_spacing_do_not_change_a_block_id(self):
+        import generate
+        bare = generate.block_id("Orémus.")
+        self.assertEqual(generate.block_id('<span class="rubric">Orémus.</span>'), bare)
+        self.assertEqual(generate.block_id("<b>Orémus.</b>   "), bare)
+        self.assertNotEqual(generate.block_id("Oremus."), bare)
+
+    def test_the_published_index_separates_the_two(self):
+        index = json.loads((ROOT / "data/index.json").read_text())
+        ordinary = set(index["ordinary"])
+        day = load_day("2026-09-06")["rites"]["Missa"]
+        blocks = {b["html"]: s["title"] for s in day["sections"] for b in s["blocks"]}
+        import generate
+        def marked(needle):
+            match = next(h for h in blocks if needle in generate.block_text(h))
+            return generate.block_id(match) in ordinary
+        # The deacon's preparation sits inside Evangelium; the Gospel does not.
+        self.assertTrue(marked("Munda cor meum"))
+        self.assertTrue(marked("Súscipe, sancte Pater"))
+        self.assertFalse(marked("Ibat Iesus in civitátem"))
+        self.assertFalse(marked("Exspéctans exspectávi"))
+
+
 class CalendarAndFlowTests(unittest.TestCase):
     def test_sundays_after_pentecost_and_their_readings(self):
         # XIV Post Pentecosten on 30 August 2026 agrees with a published

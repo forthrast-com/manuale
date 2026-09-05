@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dateKey, validDate, addDays, weekday, weekdayFull, isSunday, roman, monthGrid, monthLabel, addMonths, isFirstClass, parseRoute, validatePreferences, liturgicalAccent, escapeHtml, storagePrune, isProperSection } from '../src/core.mjs';
+import { dateKey, validDate, addDays, weekday, weekdayFull, isSunday, roman, monthGrid, monthLabel, addMonths, isFirstClass, parseRoute, validatePreferences, liturgicalAccent, escapeHtml, storagePrune, isProperSection, blockId } from '../src/core.mjs';
 
 test('local dates do not shift to yesterday east of UTC', () => {
   assert.equal(dateKey(new Date(2026, 8, 5, 0, 5)), '2026-09-05');
@@ -143,4 +143,18 @@ test('a month grid puts the first day under its own weekday', () => {
   assert.equal(monthGrid('2028-02').filter(Boolean).length, 29);
   assert.equal(addMonths('2026-12', 1), '2027-01');
   assert.equal(addMonths('2026-01', -1), '2025-12');
+});
+test('block ids match tools/generate.py byte for byte', () => {
+  // Locked against the Python side; if either drifts the propers view silently
+  // stops recognising the ordinary, so these are pinned rather than derived.
+  assert.equal(blockId('<span>\u211f. Deo gr\u00e1tias.</span>'), 'ac07e0f88f5ae4ba');
+  assert.equal(blockId('<p>  Deo   gr\u00e1tias. </p>'), '8725cad230abafbb');
+  assert.equal(blockId(''), 'cbf29ce484222325');
+});
+test('markup and whitespace do not change a block id', () => {
+  const bare = blockId('Or\u00e9mus.');
+  assert.equal(blockId('<span class="rubric">Or\u00e9mus.</span>'), bare);
+  assert.equal(blockId('<b>Or\u00e9mus.</b>   '), bare);
+  assert.equal(blockId('Or\u00e9mus.\n\n'), bare);
+  assert.notEqual(blockId('Oremus.'), bare);
 });
