@@ -19,6 +19,8 @@ let wakeLock;
 let toastTimer;
 let saveTimer;
 let calendarMonth;
+// Where the list is aimed, which is not always the day being read.
+let listAnchor;
 
 function notify(message) {
   $('toast').textContent = message;
@@ -202,25 +204,37 @@ function dayCell(day, info) {
   return { major: isSunday(day) || isFirstClass(info.rank), colour: liturgicalAccent(info.title) };
 }
 
+function calendarStatus(message) {
+  const days = Object.keys(calendar?.days ?? {}).sort();
+  $('date-status').textContent = message ?? (days.length
+    ? `${dateLabel(days[0])} — ${dateLabel(days.at(-1))}`
+    : 'Calendarium accipi non potuit.');
+  $('date-status').classList.toggle('is-error', Boolean(message));
+}
+
 function renderCalendarList() {
   const days = Object.keys(calendar?.days ?? {}).sort();
-  const nearby = days.filter(day => day >= addDays(route.day, -2) && day <= addDays(route.day, 6));
-  const shown = nearby.length ? nearby : days.slice(0, 7);
+  const anchor = listAnchor ?? route.day;
+  const nearby = days.filter(day => day >= addDays(anchor, -2) && day <= addDays(anchor, 6));
+  const shown = nearby.length ? nearby : days.slice(0, 9);
+  const today = dateKey();
   $('calendar-days').innerHTML = shown.map(day => {
     const info = calendar.days[day];
     const { major, colour } = dayCell(day, info);
-    return `<button class="calendar-day${major ? ' is-major' : ''}" data-day="${day}" aria-current="${day === route.day ? 'date' : 'false'}">`
+    const classes = ['calendar-day'];
+    if (major) classes.push('is-major');
+    if (day === today) classes.push('is-today');
+    if (day === anchor) classes.push('is-anchor');
+    return `<button class="${classes.join(' ')}" data-day="${day}" aria-current="${day === route.day ? 'date' : 'false'}">`
       + `<time datetime="${day}" data-liturgical-colour="${colour}">${Number(day.slice(-2))}<small>${weekday(day)}</small></time>`
       + `<span>${escapeHtml(info.title)}<span class="small-note">${escapeHtml(info.rank)}</span></span></button>`;
   }).join('');
-  $('date-range').textContent = days.length
-    ? `${dateLabel(days[0])} — ${dateLabel(days.at(-1))}`
-    : 'Calendarium accipi non potuit.';
 }
 
 function renderCalendarMonth() {
   const days = calendar?.days ?? {};
   const available = Object.keys(days).sort();
+  const anchor = listAnchor ?? route.day;
   $('calendar-month').textContent = monthLabel(calendarMonth);
   $('calendar-grid').innerHTML = monthGrid(calendarMonth).map(day => {
     if (!day) return '<span class="calendar-blank"></span>';
@@ -228,25 +242,45 @@ function renderCalendarMonth() {
     const info = days[day];
     if (!info) return `<span class="calendar-cell is-absent">${number}</span>`;
     const { major, colour } = dayCell(day, info);
-    return `<button class="calendar-cell${major ? ' is-major' : ''}" data-day="${day}" data-liturgical-colour="${colour}"`
+    const classes = ['calendar-cell'];
+    if (major) classes.push('is-major');
+    if (day === dateKey()) classes.push('is-today');
+    if (day === anchor) classes.push('is-anchor');
+    return `<button class="${classes.join(' ')}" data-day="${day}" data-liturgical-colour="${colour}"`
       + ` aria-current="${day === route.day ? 'date' : 'false'}"`
       + ` aria-label="${escapeHtml(`${weekdayFull(day)}, ${number} ${monthLabel(calendarMonth)} · ${info.title} · ${info.rank}`)}">${number}</button>`;
   }).join('');
   $('previous-month').disabled = !available.length || addMonths(calendarMonth, -1) < monthKey(available[0]);
   $('next-month').disabled = !available.length || addMonths(calendarMonth, 1) > monthKey(available.at(-1));
-  const chosen = days[route.day];
+  const chosen = days[anchor];
   $('calendar-chosen').innerHTML = chosen
-    ? `<b>${escapeHtml(chosen.title)}</b><span>${escapeHtml(chosen.rank)} · ${escapeHtml(dateLabel(route.day))}</span>`
-    : `<b>${escapeHtml(dateLabel(route.day))}</b><span>Hic dies nondum in libro continetur.</span>`;
+    ? `<b>${escapeHtml(chosen.title)}</b><span>${escapeHtml(chosen.rank)} · ${escapeHtml(dateLabel(anchor))}</span>`
+    : `<b>${escapeHtml(dateLabel(anchor))}</b><span>Hic dies nondum in libro continetur.</span>`;
+}
+
+// Aiming, not choosing. The list moves to the day and puts it under the cursor;
+// opening it stays a separate, deliberate press.
+function aimCalendar(day, { focus = true } = {}) {
+  listAnchor = day;
+  calendarMonth = monthKey(day);
+  renderCalendarList();
+  if (!$('month-panel').hidden) renderCalendarMonth();
+  calendarStatus();
+  if (!focus) return;
+  const target = $('calendar-days').querySelector(`[data-day="${day}"]`)
+    ?? $('calendar-days').querySelector('[data-day]');
+  target?.focus({ preventScroll: true });
+  target?.scrollIntoView({ block: 'nearest' });
 }
 
 function showCalendar() {
+  listAnchor = route.day;
   calendarMonth = monthKey(route.day);
   $('date-input').value = dateKey();
   $('date-input').removeAttribute('aria-invalid');
-  $('date-error').hidden = true;
   renderCalendarList();
   if (!$('month-panel').hidden) renderCalendarMonth();
+  calendarStatus();
   openDialog('calendar-dialog');
 }
 
@@ -359,38 +393,46 @@ for (const id of ['calendar-days', 'calendar-grid', 'saved-days']) {
     navigate(day);
   });
 }
-$('today-button').addEventListener('click', () => { $('calendar-dialog').close(); navigate(dateKey()); });
+$('today-button').addEventListener('click', () => { $('date-input').value = dateKey(); aimCalendar(dateKey()); });
 $('date-form').addEventListener('submit', event => {
-  // Only a submit commits. Typing 2026-0 must not navigate anywhere.
+  // Only a submit commits, and it commits to aiming, not to opening: the day
+  // lands under the cursor so the next press is the deliberate one.
   event.preventDefault();
   const value = $('date-input').value.trim();
   const known = validDate(value) && Boolean(calendar?.days[value]);
   $('date-input').setAttribute('aria-invalid', String(!known));
-  $('date-error').hidden = known;
   if (!known) {
-    // An unreadable date, a date outside the book, and a calendar that never
-    // arrived are three different problems; saying so saves a pointless retry.
-    $('date-error').textContent = !validDate(value)
+    calendarStatus(!validDate(value)
       ? 'Scribe diem hoc modo: AAAA-MM-DD.'
       : calendar
         ? 'Hic dies nondum in libro continetur.'
-        : 'Calendarium nondum acceptum est.';
+        : 'Calendarium nondum acceptum est.');
     return;
   }
-  $('date-input').value = '';
-  $('date-input').removeAttribute('aria-invalid');
-  $('calendar-dialog').close();
-  navigate(value);
+  aimCalendar(value);
 });
 $('date-input').addEventListener('input', event => {
-  // Type the digits; the separators place themselves, and deleting past one
-  // removes it rather than fighting the caret back over it.
-  const digits = event.target.value.replace(/\D/g, '').slice(0, 8);
-  event.target.value = [digits.slice(0, 4), digits.slice(4, 6), digits.slice(6, 8)]
+  // Separators place themselves. Count the digits before the caret, reformat,
+  // then put the caret back after the same digit, so typing and deleting in
+  // the middle of the field do not fling it to the end.
+  const field = event.target;
+  const caret = field.selectionStart ?? field.value.length;
+  const digitsBefore = field.value.slice(0, caret).replace(/\D/g, '').length;
+  const digits = field.value.replace(/\D/g, '').slice(0, 8);
+  const formatted = [digits.slice(0, 4), digits.slice(4, 6), digits.slice(6, 8)]
     .filter(part => part).join('-');
-  $('date-input').removeAttribute('aria-invalid');
-  $('date-error').hidden = true;
+  if (formatted !== field.value) {
+    field.value = formatted;
+    let position = 0;
+    for (let seen = 0; position < formatted.length && seen < digitsBefore; position += 1) {
+      if (/\d/.test(formatted[position])) seen += 1;
+    }
+    field.setSelectionRange(position, position);
+  }
+  field.removeAttribute('aria-invalid');
+  calendarStatus();
 });
+
 for (const [id, delta] of [['previous-month', -1], ['next-month', 1]]) {
   $(id).addEventListener('click', () => { calendarMonth = addMonths(calendarMonth, delta); renderCalendarMonth(); });
 }
@@ -398,7 +440,7 @@ $('month-button').addEventListener('click', () => {
   const opening = $('month-panel').hidden;
   $('month-panel').hidden = !opening;
   $('month-button').setAttribute('aria-expanded', String(opening));
-  if (opening) { calendarMonth = monthKey(route.day); renderCalendarMonth(); }
+  if (opening) { calendarMonth = monthKey(listAnchor ?? route.day); renderCalendarMonth(); }
 });
 
 function holdPlace() {

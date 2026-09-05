@@ -107,6 +107,20 @@ scroll-into-view in the automation tool; the visible control worked correctly.
   also cost contrast. Bright vermilion clears the text floor on cream (4.91:1)
   and does not on vellum (4.47:1), so the lighter ground is the more vivid one.
 
+## Calendar dialog, 5 September 2026
+
+- Aiming and choosing are now separate. Hodie and Ad diem move the list to a
+  day and put the focus on it; only pressing a day in the list opens it and
+  closes the dialog. Checked: submitting 2027-03-14 leaves the dialog open,
+  moves the list to 12-20 March, focuses the 14th, and leaves the reading view
+  untouched. Pressing that entry then navigates and closes.
+- The date field keeps its caret. Editing mid-value holds position, deleting
+  into a separator does not fling to the end, and typing forward steps
+  2027 at 4 to 2027-0 at 6, stepping over the separator it just inserted.
+- One status line carries either the available range or the complaint, so
+  nothing below it moves when an entry is refused.
+- Today is marked apart from the day being aimed at and the day being read.
+
 ## Boundaries
 
 - Actual iOS/Android installation, physical swipe behaviour and wake-lock

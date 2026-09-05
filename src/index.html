@@ -60,10 +60,10 @@
         <button id="today-button" type="button" class="outline-button">Hodie</button>
         <button id="month-button" type="button" class="icon-button month-toggle" aria-expanded="false" aria-controls="month-panel" aria-label="Mensis integer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/></svg></button>
         <label class="sr-only" for="date-input">Dies (AAAA-MM-DD)</label>
-        <input id="date-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="10" placeholder="AAAA-MM-DD" aria-describedby="date-error">
+        <input id="date-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="10" placeholder="AAAA-MM-DD" aria-describedby="date-status">
         <button id="date-go" class="outline-button" type="submit">Ad diem</button>
       </form>
-      <p id="date-error" class="small-note" role="alert" hidden></p>
+      <p id="date-status" class="small-note date-status" role="status"></p>
       <div id="month-panel" hidden>
         <div class="calendar-controls month-controls"><button id="previous-month" class="outline-button" aria-label="Mensis præcedens">←</button><p id="calendar-month" class="calendar-month" aria-live="polite">Calendarium</p><button id="next-month" class="outline-button" aria-label="Mensis sequens">→</button></div>
         <div class="calendar-weekdays" aria-hidden="true"><span>Sol</span><span>Lun</span><span>Mar</span><span>Mer</span><span>Iov</span><span>Ven</span><span>Sat</span></div>
@@ -71,8 +71,7 @@
         <p id="calendar-chosen" class="calendar-chosen" role="status"></p>
       </div>
       <div id="calendar-days" class="calendar-days"></div>
-      <p class="small-note">Calendarium Romanum generale · 1962. Colores ritum sequuntur; litteræ crassiores dominicas et festa I. classis notant.</p>
-      <p id="date-range" class="small-note"></p>
+      <p class="small-note">Calendarium Romanum generale · 1962. Colores ritum sequuntur; litteræ crassiores dominicas et festa I. classis notant. Elige diem ut aperiatur.</p>
     </div></dialog>
     <dialog id="settings-dialog" aria-labelledby="settings-title"><header class="dialog-header"><h2 id="settings-title">Forma legendi</h2><button class="close-button" data-close aria-label="Claude">×</button></header><div class="dialog-body settings-body">
       <label class="setting-row" for="font-size"><span>Litteræ</span><select id="font-size"><option value="0.8">Minimæ · 80%</option><option value="0.9">Parvæ · 90%</option><option value="1">Mediæ · 100%</option><option value="1.2">Magnæ · 120%</option><option value="1.4">Maximæ · 140%</option></select></label>
