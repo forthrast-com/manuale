@@ -63,7 +63,7 @@ def main():
     # shell, so never precache incidental dotfiles such as .DS_Store.
     assets = sorted(
         str(path.relative_to(DIST)) for path in DIST.rglob("*")
-        if path.is_file() and path.name != "sw.js" and "days" not in path.parts
+        if path.is_file() and path.name not in {"sw.js", "CNAME"} and "days" not in path.parts
         and not any(part.startswith(".") for part in path.relative_to(DIST).parts)
     )
     digest = hashlib.sha256()

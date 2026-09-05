@@ -56,6 +56,11 @@ All URLs are relative: both `https://account.github.io/manuale/` and a custom
 domain work. Query-string deep links reload without a SPA routing fallback.
 The service worker and its caches are scoped to the repository's path.
 
+`src/CNAME` pins the custom domain to `manuale.forthrast.com`. It ships in the
+artifact so that a redeploy cannot silently drop the domain; change or delete
+that one file to move or unpin the site. It is deliberately excluded from the
+precache manifest, being a hosting directive rather than an app asset.
+
 ## Offline and installation
 
 On iOS, open the HTTPS site in Safari and choose **Share → Add to Home
