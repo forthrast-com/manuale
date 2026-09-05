@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dateKey, validDate, addDays, parseRoute, validatePreferences, liturgicalAccent, escapeHtml, storagePrune } from '../src/core.mjs';
+import { dateKey, validDate, addDays, weekday, weekdayFull, isSunday, roman, monthGrid, monthLabel, addMonths, isFirstClass, parseRoute, validatePreferences, liturgicalAccent, escapeHtml, storagePrune, isProperSection } from '../src/core.mjs';
 
 test('local dates do not shift to yesterday east of UTC', () => {
   assert.equal(dateKey(new Date(2026, 8, 5, 0, 5)), '2026-09-05');
@@ -87,4 +87,60 @@ test('pruning survives a browser that forbids storage', () => {
   globalThis.localStorage = { get length() { throw Object.assign(new Error('no'), { name: 'SecurityError' }); } };
   try { assert.equal(storagePrune('position:', () => true), 0); }
   finally { delete globalThis.localStorage; }
+});
+test('the Mass proper is exactly what a propers sheet prints', () => {
+  // Introit, collect, epistle, gradual, gospel, offertory, secret, preface,
+  // communion, postcommunion — per extraordinaryform.org's propers sheets.
+  for (const title of ['Introitus', 'Oratio', 'Lectio', 'Epistola', 'Graduale',
+    'Allel\u00faia.', 'Tractus', 'Sequentia', 'Evangelium', 'Passio', 'Offertorium',
+    'Secreta', 'Pr\u00e6fatio', 'Communio', 'Postcommunio']) {
+    assert.equal(isProperSection(title), true, title);
+  }
+});
+test('the ordinary, and the near-misses, stay out of the proper', () => {
+  for (const title of ['Kyrie', 'Gloria', 'Credo', 'Sanctus', 'Canon', 'Incipit',
+    'Asperges me', 'Vidi aquam', 'Incensatio', 'Conclusio', 'Ablutiones',
+    'Preparatio Communionis', 'Orationes Leonis XIII',
+    // These three would each be caught by a sloppier prefix or substring match.
+    'Communio fidelium', 'Communio Populi', 'Ultimum Evangelium']) {
+    assert.equal(isProperSection(title), false, title);
+  }
+});
+test('the whole Mass is the default view, and an odd value cannot strand the reader', () => {
+  assert.equal(validatePreferences().massView, 'tota');
+  assert.equal(validatePreferences({ massView: 'propria' }).massView, 'propria');
+  assert.equal(validatePreferences({ massView: 'nonsense' }).massView, 'tota');
+});
+test('the week is named for the planets, not numbered as ferias', () => {
+  // 6 September 2026 is a Sunday.
+  assert.equal(weekday('2026-09-06'), 'Sol');
+  assert.equal(weekdayFull('2026-09-06'), 'dies Solis');
+  assert.equal(weekday('2026-09-10'), 'Iov');
+  assert.equal(weekdayFull('2026-09-12'), 'dies Saturni');
+  assert.equal(isSunday('2026-09-06'), true);
+  assert.equal(isSunday('2026-09-05'), false);
+});
+test('only the first class is set in bold', () => {
+  assert.equal(isFirstClass('I. classis'), true);
+  for (const rank of ['II. classis', 'III. classis', 'IV. classis', '', undefined]) {
+    assert.equal(isFirstClass(rank), false, String(rank));
+  }
+});
+test('roman numerals read as the edition sets them', () => {
+  assert.equal(roman(1962), 'MCMLXII');
+  assert.equal(roman(2026), 'MMXXVI');
+  assert.equal(roman(4), 'IV');
+  assert.equal(roman(0), '');
+  assert.equal(monthLabel('2026-09'), 'Septembris MMXXVI');
+});
+test('a month grid puts the first day under its own weekday', () => {
+  const september = monthGrid('2026-09');
+  assert.equal(september.length % 7, 0);
+  assert.equal(september.filter(Boolean).length, 30);
+  // 1 September 2026 is a Tuesday, so Sunday and Monday lead as blanks.
+  assert.equal(september.findIndex(Boolean), 2);
+  assert.equal(monthGrid('2026-02').filter(Boolean).length, 28);
+  assert.equal(monthGrid('2028-02').filter(Boolean).length, 29);
+  assert.equal(addMonths('2026-12', 1), '2027-01');
+  assert.equal(addMonths('2026-01', -1), '2025-12');
 });

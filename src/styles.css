@@ -105,7 +105,11 @@ svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width:
 .segmented button[aria-pressed="true"] { color: var(--ink); }
 .segmented button[aria-pressed="true"]::after { content: ""; position: absolute; bottom: 3px; left: 0; right: 0; height: 2px; background: var(--accent); opacity: .65; }
 select { background: var(--paper); border: 1px solid var(--rule); border-radius: 0; padding: 8px 24px 8px 10px; min-height: 44px; max-width: 100%; }
-.office-bar select { background: transparent; border-color: transparent; color: var(--muted); font-style: italic; padding-left: 5px; }
+/* Fraunces (ascent 15, descent 4 at 15.2px) and italic IM FELL (12/5 at
+   13.12px) do not share vertical metrics, so centring both in equal 44px boxes
+   leaves the select text 2px above the segmented buttons' baseline. Shift the
+   text down by that measured difference rather than aligning the boxes again. */
+.office-bar select { background: transparent; border-color: transparent; color: var(--muted); font-style: italic; padding-left: 5px; padding-top: 10px; padding-bottom: 6px; }
 #hour-select { color: var(--accent); }
 #votive-select { margin-left: auto; max-width: 230px; text-overflow: ellipsis; }
 .day-heading { padding-bottom: 28px; margin-bottom: 30px; border-bottom: 1px solid var(--rule); }
@@ -130,6 +134,14 @@ span.rubric { font-size: .85em; }
 .initial { color: var(--rubric); font-weight: bold; }
 .verse-number { font-size: .59em; color: var(--muted); vertical-align: .1em; margin-right: .32em; }
 [data-rubrics="false"] .flow .rubric { display: none; }
+/* {ex Proprio de Tempore} and its kin say which book the text came from. They
+   are the source apparatus, not part of the office, and never spoken. */
+.flow p.source { display: none; }
+/* On a vigil the Gloria is a lone rubric reading "omit."; with rubrics hidden
+   its heading would stand over nothing, reading as a failure rather than a
+   deliberate silence. Drop any section left with nothing to say. */
+[data-rubrics="false"] .flow section:not(:has(p:not(.rubric):not(.source))) { display: none; }
+.flow section:not(:has(p:not(.source))) { display: none; }
 .flow b, .flow strong { font-weight: bold; }
 .page-bar { position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 2px max(24px, calc((100vw - 660px) / 2)) calc(2px + env(safe-area-inset-bottom)); border-top: 1px solid var(--rule); background: var(--paper); }
 .running-title { display: flex; align-items: center; gap: 12px; min-height: 44px; min-width: 0; padding: 0; color: var(--muted); font-size: .79rem; font-style: italic; text-align: left; }
@@ -181,13 +193,37 @@ input[type="date"] { min-width: 0; flex: 1; width: 150px; background: var(--pape
 .solid-button, .outline-button { border-radius: 2px; border: 1px solid var(--rule); padding: 10px 14px; min-height: 44px; font-size: .9rem; }
 .solid-button { border-color: var(--accent); background: var(--accent); color: var(--paper); }
 .solid-button:not(:disabled):hover { color: var(--paper); filter: brightness(1.12); }
+.calendar-month { flex: 1; text-align: center; margin: 0; font-family: var(--font-display); font-size: 1.04rem; font-weight: 550; }
+.calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.calendar-weekdays { margin-top: 4px; font: .62rem/1 var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.calendar-grid { margin: 7px 0 4px; }
+.month-controls { padding-top: 6px; }
+#month-panel { border-top: 1px solid var(--rule); margin-top: 12px; }
+/* The nearby-days list: the reading order most of the time. */
 .calendar-days { display: grid; gap: 4px; margin: 16px 0; }
 .calendar-day { display: grid; grid-template-columns: 43px 1fr; width: 100%; text-align: left; gap: 14px; align-items: center; padding: 13px 9px; border-top: 1px solid var(--rule); }
 .calendar-day[aria-current="date"] { background: var(--surface); color: var(--ink); }
 .calendar-day time { font-family: var(--font-display); font-size: 1.5rem; text-align: center; color: light-dark(var(--accent-light), var(--accent-dark)); }
 .calendar-day time small { display: block; font: .63rem var(--font-body); text-transform: uppercase; letter-spacing: .08em; color: inherit; margin-top: 2px; }
 .calendar-day > span { font-size: .97rem; line-height: 1.4; }
-.calendar-day .small-note { display: block; font-size: .74rem; margin-top: 3px; }
+.calendar-day.is-major > span { font-weight: 650; }
+.calendar-day.is-major time { font-weight: 700; }
+.calendar-day .small-note { display: block; font-size: .74rem; margin-top: 3px; font-weight: 400; }
+/* The numeral carries the day's colour; weight carries its rank. Nothing else
+   in the cell competes, so a month reads as a season at a glance. */
+.calendar-cell { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; min-height: 38px; font-family: var(--font-display); font-size: 1.02rem; border: 1px solid transparent; border-radius: 2px; color: light-dark(var(--accent-light), var(--accent-dark)); }
+.calendar-cell.is-major { font-weight: 700; }
+.calendar-cell.is-absent { color: var(--rule); }
+.calendar-cell[aria-current="date"] { background: var(--surface); border-color: light-dark(var(--accent-light), var(--accent-dark)); }
+.calendar-cell:not(:disabled):hover { background: var(--surface-hi); }
+.calendar-chosen { min-height: 2.6em; margin: 10px 0 2px; font-size: .93rem; line-height: 1.45; }
+.calendar-chosen b { font-weight: 550; }
+.calendar-chosen span { display: block; font-size: .76rem; color: var(--muted); margin-top: 2px; }
+/* Typed dates commit on Enter or the button, never on a partial value. */
+.date-entry { display: flex; gap: 7px; align-items: center; margin: 4px 0 6px; }
+.date-entry input { flex: 1; min-width: 0; background: var(--paper); border: 1px solid var(--rule); border-radius: 0; padding: 9px 10px; min-height: 44px; font-family: var(--font-body); letter-spacing: .04em; }
+.date-entry input[aria-invalid="true"] { border-color: light-dark(#8c443b, #d0a097); }
+#date-error { color: light-dark(#8c443b, #d0a097); margin-top: 0; }
 .download-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 progress { width: 100%; accent-color: var(--accent); }
 .saved-days { max-height: 180px; overflow: auto; }
@@ -216,7 +252,7 @@ progress { width: 100%; accent-color: var(--accent); }
   .segmented { gap: 15px; margin-right: 7px; }
   .segmented button { font-size: .95rem; }
   .office-bar select { padding-right: 18px; max-width: 155px; }
-  #votive-select { flex-basis: 100%; max-width: 100%; margin-left: 0; padding: 6px 18px 6px 0; }
+  #votive-select { flex-basis: 100%; max-width: 100%; margin-left: 0; padding: 8px 18px 4px 0; }
   #office-type { max-width: 95px; }
   .day-heading { padding-bottom: 24px; margin-bottom: 25px; }
   .eyebrow { font-size: .61rem; letter-spacing: .09em; margin-bottom: 10px; }

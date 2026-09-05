@@ -1,4 +1,4 @@
-import { hours, dateKey, validDate, dateLabel, weekday, addDays, parseRoute, validatePreferences, storageRead, storageWrite, storagePrune, escapeHtml, liturgicalAccent } from './core.mjs';
+import { hours, dateKey, validDate, dateLabel, weekday, weekdayFull, isSunday, addDays, monthKey, monthLabel, monthGrid, addMonths, isFirstClass, parseRoute, validatePreferences, storageRead, storageWrite, storagePrune, escapeHtml, liturgicalAccent, isProperSection } from './core.mjs';
 import { loadIndex, loadDay, savedDays, forgetDays, pruneDays, registerWorker } from './offline.mjs';
 import { Reader } from './reader.mjs';
 
@@ -18,6 +18,7 @@ let installPrompt;
 let wakeLock;
 let toastTimer;
 let saveTimer;
+let calendarMonth;
 
 function notify(message) {
   $('toast').textContent = message;
@@ -35,7 +36,9 @@ function applyPreferences() {
   $('font-size').value = String(preferences.fontSize);
   $('show-rubrics').checked = preferences.rubrics;
   $('keep-awake').checked = preferences.awake;
-  $('mass-type').value = preferences.massType;
+  // Propria is a third choice in the same menu; the solemn or low Mass it was
+  // read from is remembered underneath, so leaving it returns you where you were.
+  $('mass-type').value = preferences.massView === 'propria' ? 'propria' : preferences.massType;
   $('office-type').value = preferences.officeType;
   const dark = preferences.theme === 'dark' || (preferences.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
   document.querySelector('meta[name="theme-color"]').content = dark ? '#000000' : '#f8f5ed';
@@ -84,6 +87,8 @@ function renderRite() {
   $('toc-title').textContent = name;
   $('mass-button').setAttribute('aria-pressed', String(mass));
   $('office-button').setAttribute('aria-pressed', String(!mass));
+  const propria = mass && preferences.massView === 'propria';
+  const sections = propria ? rite.sections.filter(section => isProperSection(section.title)) : rite.sections;
   $('hour-select').hidden = mass;
   $('mass-type').hidden = !mass;
   $('office-type').hidden = mass;
@@ -93,15 +98,21 @@ function renderRite() {
   $('mass-number').hidden = !mass || Boolean(route.votive) || !payload.rites.Missa2;
   $('mass-number').value = massNumber;
   if (!mass) $('hour-select').value = route.office;
-  currentKey = `${route.day}:${riteKey()}`;
-  const entries = rite.sections.map((section, index) => `<button class="toc-entry" data-section="${section.id}" aria-current="false"><span aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span>${escapeHtml(section.title)}</span></button>`).join('');
+  if (!sections.length) {
+    // Holy Week's own forms have no propers laid out this way.
+    showError('Huius ritus propria seorsum non habentur. Lege Missam totam.');
+    return;
+  }
+  // A remembered place in the propers is not a place in the whole Mass.
+  currentKey = `${route.day}:${riteKey()}${propria ? ':propria' : ''}`;
+  const entries = sections.map((section, index) => `<button class="toc-entry" data-section="${section.id}" aria-current="false"><span aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span>${escapeHtml(section.title)}</span></button>`).join('');
   $('desktop-toc').innerHTML = entries;
   $('mobile-toc').innerHTML = entries;
   document.title = `${name} · ${dateLabel(route.day)} · Manuale`;
   $('reading-message').hidden = true;
   $('flow').hidden = false;
   $('reading').setAttribute('aria-busy', 'false');
-  reader.render(rite, storageRead(`position:${currentKey}`, null));
+  reader.render({ ...rite, sections }, storageRead(`position:${currentKey}`, null));
 }
 
 function showError(message) {
@@ -177,17 +188,53 @@ function reconcileStorage() {
   storagePrune('position:', key => Boolean(calendar.days[key.slice(0, 10)]));
 }
 
-function showCalendar() {
-  $('date-input').value = route.day;
+function dayCell(day, info) {
+  // Sundays and first-class feasts carry the weight; the rite carries the colour.
+  return { major: isSunday(day) || isFirstClass(info.rank), colour: liturgicalAccent(info.title) };
+}
+
+function renderCalendarList() {
   const days = Object.keys(calendar?.days ?? {}).sort();
-  $('date-input').min = days[0] ?? '';
-  $('date-input').max = days.at(-1) ?? '';
-  $('date-range').textContent = days.length ? `${dateLabel(days[0])} — ${dateLabel(days.at(-1))}` : 'Calendarium accipi non potuit.';
   const nearby = days.filter(day => day >= addDays(route.day, -2) && day <= addDays(route.day, 6));
   const shown = nearby.length ? nearby : days.slice(0, 7);
-  $('calendar-days').innerHTML = shown.map(day => `<button class="calendar-day" data-day="${day}" aria-current="${day === route.day ? 'date' : 'false'}"><time datetime="${day}" data-liturgical-colour="${liturgicalAccent(calendar.days[day].title)}">${Number(day.slice(-2))}<small>${weekday(day)}</small></time><span>${escapeHtml(calendar.days[day].title)}<span class="small-note">${escapeHtml(calendar.days[day].rank)}</span></span></button>`).join('');
-  $('previous-day').disabled = !calendar?.days[addDays(route.day, -1)];
-  $('next-day').disabled = !calendar?.days[addDays(route.day, 1)];
+  $('calendar-days').innerHTML = shown.map(day => {
+    const info = calendar.days[day];
+    const { major, colour } = dayCell(day, info);
+    return `<button class="calendar-day${major ? ' is-major' : ''}" data-day="${day}" aria-current="${day === route.day ? 'date' : 'false'}">`
+      + `<time datetime="${day}" data-liturgical-colour="${colour}">${Number(day.slice(-2))}<small>${weekday(day)}</small></time>`
+      + `<span>${escapeHtml(info.title)}<span class="small-note">${escapeHtml(info.rank)}</span></span></button>`;
+  }).join('');
+  $('date-range').textContent = days.length
+    ? `${dateLabel(days[0])} — ${dateLabel(days.at(-1))}`
+    : 'Calendarium accipi non potuit.';
+}
+
+function renderCalendarMonth() {
+  const days = calendar?.days ?? {};
+  const available = Object.keys(days).sort();
+  $('calendar-month').textContent = monthLabel(calendarMonth);
+  $('calendar-grid').innerHTML = monthGrid(calendarMonth).map(day => {
+    if (!day) return '<span class="calendar-blank"></span>';
+    const number = Number(day.slice(-2));
+    const info = days[day];
+    if (!info) return `<span class="calendar-cell is-absent">${number}</span>`;
+    const { major, colour } = dayCell(day, info);
+    return `<button class="calendar-cell${major ? ' is-major' : ''}" data-day="${day}" data-liturgical-colour="${colour}"`
+      + ` aria-current="${day === route.day ? 'date' : 'false'}"`
+      + ` aria-label="${escapeHtml(`${weekdayFull(day)}, ${number} ${monthLabel(calendarMonth)} · ${info.title} · ${info.rank}`)}">${number}</button>`;
+  }).join('');
+  $('previous-month').disabled = !available.length || addMonths(calendarMonth, -1) < monthKey(available[0]);
+  $('next-month').disabled = !available.length || addMonths(calendarMonth, 1) > monthKey(available.at(-1));
+  const chosen = days[route.day];
+  $('calendar-chosen').innerHTML = chosen
+    ? `<b>${escapeHtml(chosen.title)}</b><span>${escapeHtml(chosen.rank)} · ${escapeHtml(dateLabel(route.day))}</span>`
+    : `<b>${escapeHtml(dateLabel(route.day))}</b><span>Hic dies nondum in libro continetur.</span>`;
+}
+
+function showCalendar() {
+  calendarMonth = monthKey(route.day);
+  renderCalendarList();
+  if (!$('month-panel').hidden) renderCalendarMonth();
   openDialog('calendar-dialog');
 }
 
@@ -292,7 +339,7 @@ for (const id of ['desktop-toc', 'mobile-toc']) {
   });
 }
 
-for (const id of ['calendar-days', 'saved-days']) {
+for (const id of ['calendar-days', 'calendar-grid', 'saved-days']) {
   $(id).addEventListener('click', event => {
     const day = event.target.closest('[data-day]')?.dataset.day;
     if (!day) return;
@@ -300,17 +347,51 @@ for (const id of ['calendar-days', 'saved-days']) {
     navigate(day);
   });
 }
-$('date-input').addEventListener('change', event => {
-  if (!validDate(event.target.value)) return;
-  $('calendar-dialog').close();
-  navigate(event.target.value);
-});
 $('today-button').addEventListener('click', () => { $('calendar-dialog').close(); navigate(dateKey()); });
-for (const [id, delta] of [['previous-day', -1], ['next-day', 1]]) {
-  $(id).addEventListener('click', () => { navigate(addDays(route.day, delta)); showCalendar(); });
+$('date-form').addEventListener('submit', event => {
+  // Only a submit commits. Typing 2026-0 must not navigate anywhere.
+  event.preventDefault();
+  const value = $('date-input').value.trim();
+  const known = validDate(value) && calendar?.days[value];
+  $('date-input').setAttribute('aria-invalid', String(!known));
+  $('date-error').hidden = Boolean(known);
+  if (!known) {
+    $('date-error').textContent = validDate(value)
+      ? 'Hic dies nondum in libro continetur.'
+      : 'Scribe diem hoc modo: AAAA-MM-DD.';
+    return;
+  }
+  $('date-input').value = '';
+  $('date-input').removeAttribute('aria-invalid');
+  $('calendar-dialog').close();
+  navigate(value);
+});
+$('date-input').addEventListener('input', () => {
+  $('date-input').removeAttribute('aria-invalid');
+  $('date-error').hidden = true;
+});
+for (const [id, delta] of [['previous-month', -1], ['next-month', 1]]) {
+  $(id).addEventListener('click', () => { calendarMonth = addMonths(calendarMonth, delta); renderCalendarMonth(); });
 }
+$('month-button').addEventListener('click', () => {
+  const opening = $('month-panel').hidden;
+  $('month-panel').hidden = !opening;
+  $('month-button').setAttribute('aria-expanded', String(opening));
+  if (opening) { calendarMonth = monthKey(route.day); renderCalendarMonth(); }
+});
 
-for (const [id, key] of [['theme', 'theme'], ['layout', 'layout'], ['font-size', 'fontSize'], ['show-rubrics', 'rubrics'], ['keep-awake', 'awake'], ['mass-type', 'massType'], ['office-type', 'officeType']]) {
+$('mass-type').addEventListener('change', event => {
+  flushPosition();
+  reader.anchor = reader.capture();
+  const chosen = event.target.value;
+  preferences.massView = chosen === 'propria' ? 'propria' : 'tota';
+  if (chosen !== 'propria') preferences.massType = chosen;
+  storageWrite('preferences', preferences);
+  applyPreferences();
+  if (payload) renderRite();
+});
+
+for (const [id, key] of [['theme', 'theme'], ['layout', 'layout'], ['font-size', 'fontSize'], ['show-rubrics', 'rubrics'], ['keep-awake', 'awake'], ['office-type', 'officeType']]) {
   $(id).addEventListener('change', event => {
     flushPosition();
     reader.anchor = reader.capture();
@@ -318,7 +399,7 @@ for (const [id, key] of [['theme', 'theme'], ['layout', 'layout'], ['font-size',
     storageWrite('preferences', preferences);
     if (key === 'layout') reader.configure(preferences.layout);
     applyPreferences();
-    if (['massType', 'officeType'].includes(key) && payload) renderRite();
+    if (key === 'officeType' && payload) renderRite();
     else reader.scheduleLayout();
     if (key === 'awake') updateWakeLock();
   });

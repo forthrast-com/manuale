@@ -63,6 +63,31 @@ scroll-into-view in the automation tool; the visible control worked correctly.
 - With the local server stopped, a deep link to a saved day's Vespers rendered
   from cache: 6 sections, 138 blocks, both Fell faces and Fraunces loaded.
 
+## Reading and calendar round, 5 September 2026
+
+- Source-location notes ({ex Proprio de Tempore} and its kin, 208 in a sample)
+  now carry their own kind rather than passing as rubrics, and stay out of the
+  reading. A section left with nothing visible is hidden with them, so a vigil's
+  "Gloria — omit." no longer shows a heading standing over silence.
+- The propers filter matches the sections a printed propers sheet carries:
+  introit, collect, epistle, gradual, gospel, offertory, secret, preface,
+  communion, postcommunion. Checked against all 55 distinct Mass section titles
+  in the corpus. Communio is proper where Communio fidelium and Communio Populi
+  are not, and Evangelium where Ultimum Evangelium is not.
+- Sollemnis, Lecta and Propria share one menu; the solemn or low Mass chosen
+  underneath is remembered, and a place saved in the propers is keyed apart
+  from a place in the whole Mass.
+- The calendar keeps its list of nearby days and gains a full month behind a
+  button. Both colour the day by its rite and set Sundays and first-class
+  feasts in bold. Typed dates commit only on submit; a partial value navigates
+  nowhere.
+- Weekday heads read Sol, Lun, Mar, Mer, Iov, Ven, Sat. The planetary symbols
+  were measured against both bundled fonts and are in neither, so they would
+  have borrowed glyphs from the system and risked colour emoji on Apple devices.
+- Liturgical colour was checked across all 730 days: 348 white, 140 violet,
+  126 green, 112 red, 4 black. Red reaching only 15% of days is why a nine-day
+  window can show none; the month view makes the distribution visible.
+
 ## Boundaries
 
 - Actual iOS/Android installation, physical swipe behaviour and wake-lock

@@ -35,10 +35,10 @@
         <div class="office-bar">
           <div class="segmented" role="group" aria-label="Liber"><button id="mass-button" aria-pressed="true">Missa</button><button id="office-button" aria-pressed="false">Officium</button></div>
           <select id="hour-select" aria-label="Hora canonica" hidden><option value="Matutinum">Matutinum</option><option value="Laudes">Laudes</option><option value="Prima">Prima</option><option value="Tertia">Tertia</option><option value="Sexta">Sexta</option><option value="Nona">Nona</option><option value="Vespera">Vesperæ</option><option value="Completorium">Completorium</option></select>
-          <select id="mass-type" aria-label="Forma Missæ"><option value="cantata">Sollemnis</option><option value="lecta">Lecta</option></select>
+          <select id="mass-type" aria-label="Forma Missæ"><option value="cantata">Sollemnis</option><option value="lecta">Lecta</option><option value="propria">Propria</option></select>
           <select id="office-type" aria-label="Forma Officii" hidden><option value="privatim">Privatim</option><option value="choro">In choro</option></select>
           <select id="mass-number" aria-label="Missa huius diei" hidden><option value="1">Missa I</option><option value="2">Missa II</option><option value="3">Missa III</option></select>
-          <select id="votive-select" aria-label="Proprium Missæ"><option value="">De die</option></select>
+          <select id="votive-select" aria-label="Formularium Missæ"><option value="">De die</option></select>
         </div>
         <div class="day-heading"><p id="day-rank" class="eyebrow">MISSALE ROMANUM · MCMLXII</p><h1 id="day-title">Missale et Breviarium</h1></div>
         <div id="reading" class="reading" tabindex="0" aria-label="Textus liturgicus" aria-busy="true"><article id="flow" class="flow"></article><div id="reading-message" class="reading-message" role="status"><p>Textus parantur…</p></div></div>
@@ -55,7 +55,20 @@
     <div id="toast" class="toast" role="status" hidden></div>
 
     <dialog id="index-dialog" aria-labelledby="toc-title"><header class="dialog-header"><h2 id="toc-title">Index</h2><button class="close-button" data-close aria-label="Claude">×</button></header><nav id="mobile-toc" aria-label="Partes ritus"></nav></dialog>
-    <dialog id="calendar-dialog" aria-labelledby="calendar-title"><header class="dialog-header"><h2 id="calendar-title">Calendarium</h2><button class="close-button" data-close aria-label="Claude">×</button></header><div class="dialog-body"><div class="calendar-controls"><button id="previous-day" class="outline-button" aria-label="Dies præcedens">←</button><input id="date-input" type="date" aria-label="Dies"><button id="next-day" class="outline-button" aria-label="Dies sequens">→</button><button id="today-button" class="outline-button">Hodie</button></div><p class="small-note">Calendarium Romanum generale · 1962</p><div id="calendar-days" class="calendar-days"></div><p id="date-range" class="small-note"></p></div></dialog>
+    <dialog id="calendar-dialog" aria-labelledby="calendar-title"><header class="dialog-header"><h2 id="calendar-title">Calendarium</h2><button class="close-button" data-close aria-label="Claude">×</button></header><div class="dialog-body">
+      <form id="date-form" class="date-entry"><label class="sr-only" for="date-input">Dies (AAAA-MM-DD)</label><input id="date-input" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="10" placeholder="AAAA-MM-DD" aria-describedby="date-error"><button id="date-go" class="outline-button" type="submit">Ad diem</button></form>
+      <p id="date-error" class="small-note" role="alert" hidden></p>
+      <div class="calendar-controls"><button id="today-button" class="outline-button">Hodie</button><button id="month-button" class="outline-button" aria-expanded="false" aria-controls="month-panel">Mensis integer</button></div>
+      <div id="month-panel" hidden>
+        <div class="calendar-controls month-controls"><button id="previous-month" class="outline-button" aria-label="Mensis præcedens">←</button><p id="calendar-month" class="calendar-month" aria-live="polite">Calendarium</p><button id="next-month" class="outline-button" aria-label="Mensis sequens">→</button></div>
+        <div class="calendar-weekdays" aria-hidden="true"><span>Sol</span><span>Lun</span><span>Mar</span><span>Mer</span><span>Iov</span><span>Ven</span><span>Sat</span></div>
+        <div id="calendar-grid" class="calendar-grid" role="grid" aria-label="Dies mensis"></div>
+        <p id="calendar-chosen" class="calendar-chosen" role="status"></p>
+      </div>
+      <div id="calendar-days" class="calendar-days"></div>
+      <p class="small-note">Calendarium Romanum generale · 1962. Colores ritum sequuntur; litteræ crassiores dominicas et festa I. classis notant.</p>
+      <p id="date-range" class="small-note"></p>
+    </div></dialog>
     <dialog id="settings-dialog" aria-labelledby="settings-title"><header class="dialog-header"><h2 id="settings-title">Forma legendi</h2><button class="close-button" data-close aria-label="Claude">×</button></header><div class="dialog-body settings-body">
       <label class="setting-row" for="font-size"><span>Litteræ</span><select id="font-size"><option value="0.8">Minimæ · 80%</option><option value="0.9">Parvæ · 90%</option><option value="1">Mediæ · 100%</option><option value="1.2">Magnæ · 120%</option><option value="1.4">Maximæ · 140%</option></select></label>
       <label class="setting-row" for="theme"><span>Color</span><select id="theme"><option value="auto">Automaticus</option><option value="light">Diurnus</option><option value="dark">Nocturnus</option></select></label>

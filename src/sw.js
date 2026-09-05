@@ -34,8 +34,12 @@ self.addEventListener('fetch', event => {
     return;
   }
   if (event.request.mode === 'navigate') {
+    // Serve the page from the same versioned cache as its modules. Fetching the
+    // page from the network while modules came from cache mixes a new document
+    // with an old script, which fails in ways neither version would alone. The
+    // calendar is handled above, so freshness where it matters is unaffected.
     const target = relative === '' || relative === 'index.html' ? new URL('index.html', ROOT).href : url.href;
-    event.respondWith(fetch(event.request).catch(async () => (await caches.open(SHELL)).match(target)));
+    event.respondWith(caches.open(SHELL).then(async cache => (await cache.match(target)) || fetch(event.request)));
   } else if (ASSETS.includes(relative)) {
     event.respondWith(caches.open(SHELL).then(async cache => (await cache.match(url.href)) || fetch(event.request)));
   }

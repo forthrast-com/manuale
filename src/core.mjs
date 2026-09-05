@@ -1,7 +1,68 @@
 export const hours = ['Matutinum', 'Laudes', 'Prima', 'Tertia', 'Sexta', 'Nona', 'Vespera', 'Completorium'];
 export const votives = ['C11', 'C9', 'V4', 'V6', 'Propaganda'];
 const months = ['Ianuarii', 'Februarii', 'Martii', 'Aprilis', 'Maii', 'Iunii', 'Iulii', 'Augusti', 'Septembris', 'Octobris', 'Novembris', 'Decembris'];
-const weekdays = ['Dom.', 'Fer. II', 'Fer. III', 'Fer. IV', 'Fer. V', 'Fer. VI', 'Sabb.'];
+// The planetary week, as classical Latin names it. Kept to three letters so the
+// heads of a month grid stay in the bundled face rather than borrowing glyphs.
+const weekdays = ['Sol', 'Lun', 'Mar', 'Mer', 'Iov', 'Ven', 'Sat'];
+const weekdaysFull = ['dies Solis', 'dies Lunae', 'dies Martis', 'dies Mercurii',
+  'dies Iovis', 'dies Veneris', 'dies Saturni'];
+
+// The Mass proper, as a printed propers sheet gives it: introit, collect,
+// epistle, gradual (with its alleluia or tract), gospel, offertory, secret,
+// preface, communion, postcommunion. Commemorations arrive from the source as
+// additional Oratio and Lectio sections, so matching by title collects them.
+// Matching is exact: Communio is proper, Communio fidelium is the rite; and
+// Evangelium is proper where Ultimum Evangelium is not.
+const properSections = new Set([
+  'Introitus', 'Oratio', 'Lectio', 'Epistola', 'Graduale', 'Alleluia',
+  'Sequentia', 'Tractus', 'Evangelium', 'Passio', 'Offertorium', 'Secreta',
+  'Praefatio', 'Communio', 'Postcommunio',
+]);
+
+export function isProperSection(title) {
+  const name = String(title).trim().replace(/\.+$/, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/æ/g, 'ae').replace(/Æ/g, 'Ae');
+  return properSections.has(name);
+}
+
+const numerals = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'],
+  [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
+
+export function roman(value) {
+  let remainder = Math.trunc(value);
+  if (!(remainder > 0)) return '';
+  let result = '';
+  for (const [size, glyph] of numerals) while (remainder >= size) { result += glyph; remainder -= size; }
+  return result;
+}
+
+// Ranks arrive as "I. classis" through "IV. classis"; only the first is bold.
+export function isFirstClass(rank) { return /^I\.\s*classis/i.test(String(rank ?? '').trim()); }
+
+export function monthKey(value) { return String(value).slice(0, 7); }
+
+export function monthLabel(month) {
+  const [year, index] = month.split('-');
+  return `${months[Number(index) - 1]} ${roman(Number(year))}`;
+}
+
+export function addMonths(month, offset) {
+  const [year, index] = month.split('-').map(Number);
+  const shifted = new Date(year, index - 1 + offset, 1);
+  return `${shifted.getFullYear()}-${String(shifted.getMonth() + 1).padStart(2, '0')}`;
+}
+
+// The cells of a month grid, Sunday first, padded with the blanks that put the
+// first of the month under its own weekday.
+export function monthGrid(month) {
+  const [year, index] = month.split('-').map(Number);
+  const first = new Date(year, index - 1, 1);
+  const days = new Date(year, index, 0).getDate();
+  const cells = Array.from({ length: first.getDay() }, () => null);
+  for (let day = 1; day <= days; day += 1) cells.push(`${month}-${String(day).padStart(2, '0')}`);
+  while (cells.length % 7) cells.push(null);
+  return cells;
+}
 
 export function dateKey(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -25,6 +86,8 @@ export function dateLabel(value, year = true) {
 }
 
 export function weekday(value) { return weekdays[new Date(`${value}T12:00:00`).getDay()]; }
+export function weekdayFull(value) { return weekdaysFull[new Date(`${value}T12:00:00`).getDay()]; }
+export function isSunday(value) { return new Date(`${value}T12:00:00`).getDay() === 0; }
 export function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 export function escapeHtml(value) { return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
 
@@ -44,6 +107,7 @@ export function validatePreferences(value = {}) {
     fontSize: [.8, .9, 1, 1.2, 1.4].includes(Number(value.fontSize)) ? Number(value.fontSize) : 1,
     rubrics: value.rubrics !== false,
     massType: value.massType === 'lecta' ? 'lecta' : 'cantata',
+    massView: value.massView === 'propria' ? 'propria' : 'tota',
     officeType: value.officeType === 'choro' ? 'choro' : 'privatim',
     awake: value.awake === true,
   };

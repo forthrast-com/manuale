@@ -53,9 +53,11 @@ def block(value):
     for rubric in spoken.select(".rubric, .verse-number"):
         rubric.decompose()
     kind = "rubric" if not spoken.get_text().strip() else "prayer"
-    # Source-location annotations are editorial metadata, not spoken prayers.
+    # Source-location annotations ({ex Proprio de Tempore} and friends) tell a
+    # reader which book the text was drawn from. They are neither prayer nor
+    # rubric, so they get their own kind and stay out of the reading by default.
     if text.startswith("{") and text.endswith("}"):
-        kind = "rubric"
+        kind = "source"
     if fragment.select_one(".verse-number"):
         kind = "verse"
     return {"html": value, "kind": kind}
