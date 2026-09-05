@@ -33,7 +33,9 @@ function applyPreferences() {
   document.documentElement.dataset.theme = preferences.theme;
   document.documentElement.dataset.rubrics = String(preferences.rubrics);
   document.documentElement.style.setProperty('--font-scale', String(preferences.fontSize));
-  $('theme').value = preferences.theme;
+  for (const button of $('theme').querySelectorAll('[data-theme]')) {
+    button.setAttribute('aria-pressed', String(button.dataset.theme === preferences.theme));
+  }
   $('layout').value = preferences.layout;
   $('font-size').value = String(preferences.fontSize);
   $('show-rubrics').checked = preferences.rubrics;
@@ -43,7 +45,7 @@ function applyPreferences() {
   $('mass-type').value = preferences.massView === 'propria' ? 'propria' : preferences.massType;
   $('office-type').value = preferences.officeType;
   const dark = preferences.theme === 'dark' || (preferences.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
-  document.querySelector('meta[name="theme-color"]').content = dark ? '#000000' : '#f8f5ed';
+  document.querySelector('meta[name="theme-color"]').content = dark ? '#000000' : '#fdfcf9';
 }
 
 applyPreferences();
@@ -459,7 +461,17 @@ $('mass-type').addEventListener('change', event => {
   if (payload) renderRite();
 });
 
-for (const [id, key] of [['theme', 'theme'], ['layout', 'layout'], ['font-size', 'fontSize'], ['show-rubrics', 'rubrics'], ['keep-awake', 'awake'], ['office-type', 'officeType']]) {
+$('theme').addEventListener('click', event => {
+  const chosen = event.target.closest('[data-theme]')?.dataset.theme;
+  if (!chosen || chosen === preferences.theme) return;
+  holdPlace();
+  preferences.theme = chosen;
+  storageWrite('preferences', preferences);
+  applyPreferences();
+  reader.scheduleLayout();
+});
+
+for (const [id, key] of [['layout', 'layout'], ['font-size', 'fontSize'], ['show-rubrics', 'rubrics'], ['keep-awake', 'awake'], ['office-type', 'officeType']]) {
   $(id).addEventListener('change', event => {
     holdPlace();
     preferences[key] = event.target.type === 'checkbox' ? event.target.checked : key === 'fontSize' ? Number(event.target.value) : event.target.value;

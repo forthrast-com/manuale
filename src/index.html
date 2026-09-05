@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#f8f5ed">
+    <meta name="theme-color" content="#fdfcf9">
     <meta name="description" content="Missale Romanum et Breviarium Romanum, 1962. Textus Latini integri, etiam sine interrete.">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -75,7 +75,11 @@
     </div></dialog>
     <dialog id="settings-dialog" aria-labelledby="settings-title"><header class="dialog-header"><h2 id="settings-title">Forma legendi</h2><button class="close-button" data-close aria-label="Claude">×</button></header><div class="dialog-body settings-body">
       <label class="setting-row" for="font-size"><span>Litteræ</span><select id="font-size"><option value="0.8">Minimæ · 80%</option><option value="0.9">Parvæ · 90%</option><option value="1">Mediæ · 100%</option><option value="1.2">Magnæ · 120%</option><option value="1.4">Maximæ · 140%</option></select></label>
-      <label class="setting-row" for="theme"><span>Color</span><select id="theme"><option value="auto">Automaticus</option><option value="light">Diurnus</option><option value="dark">Nocturnus</option></select></label>
+      <div class="setting-row"><span id="theme-label">Color</span><div id="theme" class="theme-choice" role="group" aria-labelledby="theme-label">
+        <button type="button" data-theme="auto" aria-label="Automaticus" title="Automaticus" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor" stroke="none"/></svg></button>
+        <button type="button" data-theme="light" aria-label="Diurnus" title="Diurnus" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.4M12 19v2.4M2.6 12H5M19 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7"/></svg></button>
+        <button type="button" data-theme="dark" aria-label="Nocturnus" title="Nocturnus" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.8A8.8 8.8 0 0 1 9.2 3.5a8.8 8.8 0 1 0 11.3 11.3z"/></svg></button>
+      </div></div>
       <label class="setting-row" for="layout"><span>Lectio</span><select id="layout"><option value="scroll">Continua</option><option value="pages">Paginæ</option></select></label>
       <label class="setting-row" for="show-rubrics"><span>Rubricæ</span><input id="show-rubrics" type="checkbox" checked></label>
       <label class="setting-row" for="keep-awake"><span>Scrinium maneat accensum</span><input id="keep-awake" type="checkbox"></label>

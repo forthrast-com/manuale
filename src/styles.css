@@ -196,6 +196,12 @@ dialog::backdrop { background: #17120d65; backdrop-filter: blur(3px); }
 #mobile-toc .toc-entry { min-height: 44px; font-size: 1.05rem; padding: 11px 12px; }
 .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
 .setting-row > select { font-size: .9rem; }
+/* Sun, moon, and a half-lit disc for following the device. */
+.theme-choice { display: inline-flex; gap: 4px; }
+.theme-choice button { display: grid; place-items: center; width: 44px; height: 40px; color: var(--muted); border: 1px solid transparent; border-radius: 2px; }
+.theme-choice svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+.theme-choice button:not(:disabled):hover { color: var(--ink); }
+.theme-choice button[aria-pressed="true"] { color: var(--accent); border-color: var(--rule); background: var(--surface); }
 input[type="checkbox"] { width: 21px; height: 21px; accent-color: var(--accent); flex-shrink: 0; }
 .small-note { font-size: .82rem; color: var(--muted); line-height: 1.65; }
 .about { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--rule); font-size: .9rem; color: var(--muted); }
