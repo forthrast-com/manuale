@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hours, dateKey, validDate, addDays, weekday, weekdayFull, isSunday, roman, monthGrid, monthLabel, addMonths, isFirstClass, parseRoute, validatePreferences, liturgicalAccent, escapeHtml, storagePrune, isProperSection, blockId, canonicalHour } from '../src/core.mjs';
+import { hourHeading, hours, dateKey, validDate, addDays, weekday, weekdayFull, isSunday, roman, monthGrid, monthLabel, addMonths, isFirstClass, parseRoute, validatePreferences, liturgicalAccent, escapeHtml, storagePrune, isProperSection, blockId, canonicalHour } from '../src/core.mjs';
 
 test('local dates do not shift to yesterday east of UTC', () => {
   assert.equal(dateKey(new Date(2026, 8, 5, 0, 5)), '2026-09-05');
@@ -131,7 +131,8 @@ test('roman numerals read as the edition sets them', () => {
   assert.equal(roman(2026), 'MMXXVI');
   assert.equal(roman(4), 'IV');
   assert.equal(roman(0), '');
-  assert.equal(monthLabel('2026-09'), 'Septembris MMXXVI');
+  assert.equal(monthLabel('2026-09'), 'September MMXXVI');
+  assert.equal(monthLabel('2026-09', true), 'Septembris MMXXVI');
 });
 test('a month grid puts the first day under its own weekday', () => {
   const september = monthGrid('2026-09');
@@ -173,4 +174,8 @@ test('every hour of the clock maps to a real office', () => {
   for (let h = 0; h < 24; h += 1) {
     assert.ok(hours.includes(canonicalHour(new Date(2026, 8, 5, h, 0))), `hour ${h}`);
   }
+});
+test('each hour is headed ad with the accusative', () => {
+  assert.deepEqual(hours.map(hourHeading), ['Ad Matutinum', 'Ad Laudes', 'Ad Primam', 'Ad Tertiam',
+    'Ad Sextam', 'Ad Nonam', 'Ad Vesperas', 'Ad Completorium']);
 });

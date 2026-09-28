@@ -1,5 +1,13 @@
 export const hours = ['Matutinum', 'Laudes', 'Prima', 'Tertia', 'Sexta', 'Nona', 'Vespera', 'Completorium'];
+// The Office heads each hour "Ad Laudes", "Ad Primam": ad with the accusative.
+const hourHeadings = { Matutinum: 'Ad Matutinum', Laudes: 'Ad Laudes', Prima: 'Ad Primam',
+  Tertia: 'Ad Tertiam', Sexta: 'Ad Sextam', Nona: 'Ad Nonam', Vespera: 'Ad Vesperas',
+  Completorium: 'Ad Completorium' };
+export function hourHeading(hour) { return hourHeadings[hour] ?? hour; }
 export const votives = ['C11', 'C9', 'V4', 'V6', 'Propaganda'];
+// A date names its month in the genitive, "14 Septembris"; a month standing
+// alone as a heading is nominative, "September".
+const monthsNominative = ['Ianuarius', 'Februarius', 'Martius', 'Aprilis', 'Maius', 'Iunius', 'Iulius', 'Augustus', 'September', 'October', 'November', 'December'];
 const months = ['Ianuarii', 'Februarii', 'Martii', 'Aprilis', 'Maii', 'Iunii', 'Iulii', 'Augusti', 'Septembris', 'Octobris', 'Novembris', 'Decembris'];
 // The planetary week, as classical Latin names it. Kept to three letters so the
 // heads of a month grid stay in the bundled face rather than borrowing glyphs.
@@ -58,9 +66,9 @@ export function isFirstClass(rank) { return /^I\.\s*classis/i.test(String(rank ?
 
 export function monthKey(value) { return String(value).slice(0, 7); }
 
-export function monthLabel(month) {
+export function monthLabel(month, genitive = false) {
   const [year, index] = month.split('-');
-  return `${months[Number(index) - 1]} ${roman(Number(year))}`;
+  return `${(genitive ? months : monthsNominative)[Number(index) - 1]} ${roman(Number(year))}`;
 }
 
 export function addMonths(month, offset) {

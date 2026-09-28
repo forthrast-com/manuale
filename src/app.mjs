@@ -1,4 +1,4 @@
-import { hours, canonicalHour, dateKey, validDate, dateLabel, weekday, weekdayFull, isSunday, addDays, monthKey, monthLabel, monthGrid, addMonths, isFirstClass, parseRoute, validatePreferences, storageRead, storageWrite, storagePrune, escapeHtml, liturgicalAccent, isProperSection, blockId } from './core.mjs';
+import { hours, canonicalHour, dateKey, validDate, dateLabel, weekday, weekdayFull, isSunday, addDays, monthKey, monthLabel, monthGrid, addMonths, isFirstClass, parseRoute, validatePreferences, storageRead, storageWrite, storagePrune, escapeHtml, liturgicalAccent, isProperSection, blockId, hourHeading } from './core.mjs';
 import { loadIndex, loadDay, savedDays, forgetDays, pruneDays, registerWorker } from './offline.mjs';
 import { Reader } from './reader.mjs';
 
@@ -83,7 +83,7 @@ function renderRite() {
   const rite = payload?.rites[riteKey()];
   if (!rite) { showError('Hic ritus non invenitur.'); return; }
   const mass = route.office === 'Missa';
-  const name = mass ? 'Ordo Missæ' : route.office === 'Vespera' ? 'Ad Vesperas' : route.office;
+  const name = mass ? 'Ordo Missæ' : hourHeading(route.office);
   document.documentElement.dataset.liturgicalColour = liturgicalAccent(rite.title, mass ? route.votive : '');
   $('day-title').textContent = mass && route.votive ? calendar.votives[route.votive] : rite.title;
   $('day-rank').textContent = `${mass && route.votive ? 'Missa votiva' : rite.rank || 'Calendarium Romanum'} · ${mass ? 'MISSALE' : 'BREVIARIUM'} · 1962`;
@@ -256,7 +256,7 @@ function renderCalendarMonth() {
     if (day === anchor) classes.push('is-anchor');
     return `<button class="${classes.join(' ')}" data-day="${day}" data-liturgical-colour="${colour}"`
       + ` aria-current="${day === route.day ? 'date' : 'false'}"`
-      + ` aria-label="${escapeHtml(`${weekdayFull(day)}, ${number} ${monthLabel(calendarMonth)} · ${info.title} · ${info.rank}`)}">${number}</button>`;
+      + ` aria-label="${escapeHtml(`${weekdayFull(day)}, ${number} ${monthLabel(calendarMonth, true)} · ${info.title} · ${info.rank}`)}">${number}</button>`;
   }).join('');
   $('previous-month').disabled = !available.length || addMonths(calendarMonth, -1) < monthKey(available[0]);
   $('next-month').disabled = !available.length || addMonths(calendarMonth, 1) > monthKey(available.at(-1));

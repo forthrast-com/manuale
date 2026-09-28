@@ -61,7 +61,7 @@ def main():
     for filename, size in [("icon-192.png", 192), ("icon-512.png", 512), ("apple-touch-icon.png", 180)]:
         (icons / filename).write_bytes(png_icon(size))
     licence = (ROOT / "vendor/divinum-officium/LICENSE").read_text()
-    font_licence = (ROOT / "src/fonts/OFL.txt").read_text() + "\n\nIM FELL English — Igino Marini\n\n" + (ROOT / "src/fonts/IM_FELL_OFL.txt").read_text()
+    font_licence = (ROOT / "src/fonts/OFL.txt").read_text() + "\n\nManuale Fell, derived from IM FELL English — Igino Marini\n\n" + (ROOT / "src/fonts/IM_FELL_OFL.txt").read_text()
     (DIST / "licences.txt").write_text("Manuale uses Divinum Officium, including its Latin text corpus.\n\n"
         "The Manuale application code was written with AI assistance (OpenAI GPT\n"
         "and Anthropic Claude models) under human review. The liturgical text was\n"

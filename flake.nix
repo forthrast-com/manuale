@@ -11,7 +11,7 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           perl = pkgs.perl.withPackages (ps: [ ps.CGI ]);
-          python = pkgs.python3.withPackages (ps: [ ps.beautifulsoup4 ]);
+          python = pkgs.python3.withPackages (ps: [ ps.beautifulsoup4 ps.fonttools ]);
         in {
           default = pkgs.mkShellNoCC {
             packages = [ perl python pkgs.nodejs pkgs.gnumake pkgs.git pkgs.curl pkgs.poppler-utils ];

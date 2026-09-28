@@ -1,13 +1,13 @@
 @font-face {
-  font-family: "IM FELL English";
-  src: url("./fonts/im_fell_english.ttf") format("truetype");
+  font-family: "Manuale Fell";
+  src: url("./fonts/manuale_fell.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "IM FELL English";
-  src: url("./fonts/im_fell_english_italic.ttf") format("truetype");
+  font-family: "Manuale Fell";
+  src: url("./fonts/manuale_fell_italic.ttf") format("truetype");
   font-weight: 400;
   font-style: italic;
   font-display: swap;
@@ -42,7 +42,7 @@
   --surface-hi: color-mix(in srgb, var(--accent) 3%, var(--paper));
   --rule: color-mix(in srgb, var(--accent) 24%, var(--paper));
   --shadow: #26221d18;
-  --font-body: "IM FELL English", Georgia, "Times New Roman", serif;
+  --font-body: "Manuale Fell", Georgia, "Times New Roman", serif;
   --font-display: Fraunces, "Palatino Linotype", Palatino, Georgia, serif;
   --font-ui: var(--font-body);
   --font-scale: 1;
@@ -167,6 +167,11 @@ span.rubric { font-size: .85em; }
 .flow section:not(:has(p:not(.source))) { display: none; }
 .flow b, .flow strong { font-weight: bold; }
 .page-bar { background: var(--paper); position: fixed; z-index: 5; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 2px max(24px, calc((100vw - 660px) / 2)) calc(2px + env(safe-area-inset-bottom)); border-top: 1px solid var(--rule); }
+/* Paper continues below the bar. Mobile browsers leave a strip under a fixed
+   bottom edge while their toolbars slide or float, and during overscroll;
+   without this the text scrolling behind shows through it. */
+.page-bar::after { content: ""; position: absolute; top: 100%; left: 0; right: 0; height: 50vh; background: inherit; pointer-events: none; }
+body[data-layout="pages"] .page-bar::after { content: none; }
 .running-title { display: flex; align-items: center; gap: 12px; min-height: 44px; min-width: 0; padding: 0; color: var(--muted); font-size: .79rem; font-style: italic; text-align: left; }
 .running-title span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 65vw; }
 .running-title span:last-child { color: var(--accent); font-style: normal; }
@@ -288,7 +293,7 @@ progress { width: 100%; accent-color: var(--accent); }
   .date-button { font-size: .82rem; padding-top: 9px; }
   .header-actions { gap: 0; }
   .icon-button, .type-button { width: 36px; }
-  .reader-shell { padding: 12px max(24px, env(safe-area-inset-right)) 80px max(24px, env(safe-area-inset-left)); }
+  .reader-shell { padding: 12px max(24px, env(safe-area-inset-right)) calc(80px + env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
   .office-bar { gap: 6px; margin-bottom: 18px; font-size: .82rem; }
   .segmented { gap: 15px; margin-right: 7px; }
   .segmented button { font-size: .95rem; }

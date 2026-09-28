@@ -122,6 +122,15 @@ def parse_rite(raw, kind):
                         first.decompose()
                         fragment = str(parsed).strip()
                 text = plain(fragment)
+                # Matins marks its nocturns with a bare rubric, not a heading,
+                # so a nocturn's psalms ran on under the previous lesson. The
+                # first follows its own heading directly and takes its place.
+                if re.fullmatch(r"Nocturnus [IV]+", text):
+                    if current and not any(b["kind"] != "source" for b in current["blocks"]):
+                        current["title"] = text
+                    else:
+                        current = start_section(text)
+                    continue
                 if kind.startswith("Missa"):
                     if not communion_added and "Quod ore súmpsimus" in text:
                         previous_rubric = None
