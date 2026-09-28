@@ -265,6 +265,12 @@ class CalendarAndFlowTests(unittest.TestCase):
         self.assertIn("dominus vobiscum", text(rites["VesperaChoro"]))
         self.assertNotIn("dominus vobiscum", text(rites["Vespera"]))
 
+    def test_each_nocturn_opens_its_own_section(self):
+        titles = [section["title"] for section in load_rite("2026-09-14", "Matutinum")["sections"]]
+        for nocturn, lesson in (("Nocturnus I", "Lectio 1"), ("Nocturnus II", "Lectio 4"), ("Nocturnus III", "Lectio 7")):
+            self.assertEqual(titles.index(nocturn) + 1, titles.index(lesson), titles)
+        self.assertNotIn("Psalmi cum lectionibus", titles)
+
     def test_votive_changes_whole_mass_not_office(self):
         rites = {kind: load_rite("2026-09-06", kind) for kind in ["Missa", "Missa-C9", "Missa-C11", "Laudes"]}
         self.assertIn("requiem", text(rites["Missa-C9"]))

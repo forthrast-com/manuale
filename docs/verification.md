@@ -26,7 +26,8 @@ this is not a claim of physical-device or liturgical certification.
   the running footer returns to the top. Optional pagination still turns.
 - Mobile 390 × 844 checked at normal and maximum reading size, without
   horizontal overflow. The desktop Office layout was also inspected.
-- IM FELL English regular and italic are loaded locally. Fraunces supplies
+- Manuale Fell regular and italic (IM FELL English with ǽ, Ǽ, œ́ and a
+  combining acute added) are loaded locally. Fraunces supplies
   display headings. No Google Fonts request is needed at runtime.
 - OLED mode computes to rgb(0, 0, 0), including the browser theme colour.
   Rubrics, response marks and crosses have identical computed accent colours.

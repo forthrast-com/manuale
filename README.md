@@ -31,7 +31,7 @@ GitHub Pages, with no runtime server, account, analytics, or third-party request
   month on request. Both colour each day by its rite and set Sundays and
   first-class feasts in bold. Typing a date aims the list at it; opening it
   stays a separate press.
-- IM FELL English reading text, Fraunces headings, and liturgical colour at
+- IM FELL English reading text (patched for ǽ and œ́, which it lacks), Fraunces headings, and liturgical colour at
   pigment strength rather than as a tint. Both fonts are bundled locally,
   including the Fell italic.
 - Installable on a phone. Opened days are saved automatically; download the
