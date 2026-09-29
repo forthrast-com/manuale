@@ -196,3 +196,7 @@ To change the corpus, update the pinned revision in `sources.json`, review
 then regenerate. Corrections have an exact before/after boundary and fail
 loudly if they no longer apply. Changing the importer invalidates generated
 packs. Do not turn a missing source text into an empty prayer.
+
+The reading faces are derived from IM FELL English, which lacks ǽ and œ́, by
+`nix develop --command make fonts`; the result is reproducible and checked in.
+See [src/fonts/README.md](src/fonts/README.md).

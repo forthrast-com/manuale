@@ -265,11 +265,29 @@ class CalendarAndFlowTests(unittest.TestCase):
         self.assertIn("dominus vobiscum", text(rites["VesperaChoro"]))
         self.assertNotIn("dominus vobiscum", text(rites["Vespera"]))
 
+    def test_a_rubric_before_the_incipit_does_not_repeat_it(self):
+        for kind in ("Matutinum", "Laudes"):
+            sections = load_rite("2026-04-05", kind)["sections"]
+            titles = [section["title"] for section in sections]
+            with self.subTest(kind=kind):
+                self.assertEqual(titles.count("Incipit"), 1, titles)
+                self.assertEqual(sections[0]["blocks"][0]["kind"], "rubric")
+                self.assertIn("vigiliæ paschalis", plain(sections[0]["blocks"][0]["html"]))
+
     def test_each_nocturn_opens_its_own_section(self):
         titles = [section["title"] for section in load_rite("2026-09-14", "Matutinum")["sections"]]
         for nocturn, lesson in (("Nocturnus I", "Lectio 1"), ("Nocturnus II", "Lectio 4"), ("Nocturnus III", "Lectio 7")):
             self.assertEqual(titles.index(nocturn) + 1, titles.index(lesson), titles)
         self.assertNotIn("Psalmi cum lectionibus", titles)
+
+    def test_the_te_deum_is_not_filed_under_the_last_lesson(self):
+        for day, last in (("2026-09-14", "Lectio 9"), ("2026-09-16", "Lectio 3")):
+            sections = {s["title"]: s for s in load_rite(day, "Matutinum")["sections"]}
+            titles = list(sections)
+            with self.subTest(day=day):
+                self.assertEqual(titles.index(last) + 1, titles.index("Te Deum"), titles)
+                self.assertIn("te deum laudamus", text({"sections": [sections["Te Deum"]]}))
+                self.assertNotIn("te deum laudamus", text({"sections": [sections[last]]}))
 
     def test_votive_changes_whole_mass_not_office(self):
         rites = {kind: load_rite("2026-09-06", kind) for kind in ["Missa", "Missa-C9", "Missa-C11", "Laudes"]}

@@ -100,6 +100,10 @@ def parse_rite(raw, kind):
         return section
 
     current = None
+    # Some rites open with a rubric before any heading: Easter's excusing
+    # those at the Vigil, the Chrism Mass's. It is given "Incipit" below, and
+    # the rite's own Incipit heading then continues it rather than repeating it.
+    opening = None
     communion_added = False
     last_gospel_added = False
     for cell in cells:
@@ -118,14 +122,16 @@ def parse_rite(raw, kind):
                     label = first.get_text(" ", strip=True)
                     # Initials in liturgical texts are not section headings.
                     if label not in {"N.", "N. et N."} and not first.find_parent("span"):
-                        current = start_section(label)
+                        if not (opening and current is opening and label == opening["title"]):
+                            current = start_section(label)
                         first.decompose()
                         fragment = str(parsed).strip()
                 text = plain(fragment)
-                # Matins marks its nocturns with a bare rubric, not a heading,
-                # so a nocturn's psalms ran on under the previous lesson. The
-                # first follows its own heading directly and takes its place.
-                if re.fullmatch(r"Nocturnus [IV]+", text):
+                # Matins marks its nocturns and its Te Deum with a bare rubric,
+                # not a heading, so a nocturn's psalms ran on under the previous
+                # lesson and the Te Deum under the last. Each opens a section;
+                # the first nocturn follows its own heading and takes its place.
+                if not kind.startswith("Missa") and re.fullmatch(r"Nocturnus [IV]+|Te Deum", text):
                     if current and not any(b["kind"] != "source" for b in current["blocks"]):
                         current["title"] = text
                     else:
@@ -148,7 +154,7 @@ def parse_rite(raw, kind):
                     if text.startswith("Sanctus, Sanctus, Sanctus"):
                         current = start_section("Sanctus")
                 if current is None:
-                    current = start_section("Incipit")
+                    current = opening = start_section("Incipit")
                 if item := block(fragment):
                     current["blocks"].append(item)
     sections = [s for s in sections if s["blocks"]]

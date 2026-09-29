@@ -1,4 +1,4 @@
-import { hours, canonicalHour, dateKey, validDate, dateLabel, weekday, weekdayFull, isSunday, addDays, monthKey, monthLabel, monthGrid, addMonths, isFirstClass, parseRoute, validatePreferences, storageRead, storageWrite, storagePrune, escapeHtml, liturgicalAccent, isProperSection, blockId, hourHeading } from './core.mjs';
+import { hours, canonicalHour, dateKey, validDate, dateLabel, weekday, weekdayFull, isSunday, addDays, monthKey, monthLabel, monthGrid, addMonths, isFirstClass, parseRoute, validatePreferences, storageRead, storageWrite, storagePrune, escapeHtml, liturgicalAccent, isProperSection, blockId, hourHeading, daysCounted, dateRange } from './core.mjs';
 import { loadIndex, loadDay, savedDays, forgetDays, pruneDays, registerWorker } from './offline.mjs';
 import { Reader } from './reader.mjs';
 
@@ -191,7 +191,7 @@ async function navigate(day, office = route.office, push = true) {
     currentSaved = result.saved;
     $('saved-indicator').hidden = !currentSaved;
     renderRite();
-    $('announcement').textContent = `${payload.rites[riteKey()].title}. ${office}.`;
+    $('announcement').textContent = `${payload.rites[riteKey()].title}. ${office === 'Missa' ? 'Missa' : hourHeading(office)}.`;
   } catch (error) {
     if (error.name === 'AbortError' || activeRequest !== request) return;
     payload = null;
@@ -215,7 +215,7 @@ function dayCell(day, info) {
 function calendarStatus(message) {
   const days = Object.keys(calendar?.days ?? {}).sort();
   $('date-status').textContent = message ?? (days.length
-    ? `${dateLabel(days[0])} — ${dateLabel(days.at(-1))}`
+    ? dateRange(days[0], days.at(-1))
     : 'Calendarium accipi non potuit.');
   $('date-status').classList.toggle('is-error', Boolean(message));
 }
@@ -295,7 +295,7 @@ function showCalendar() {
 async function refreshOffline() {
   if (!calendar) return;
   const saved = await savedDays(calendar);
-  $('offline-status').textContent = `${saved.length} dies servati.${workerReady ? ' Manuale sine interrete aperiri potest.' : ' Applicatio ad usum sine interrete paratur…'}`;
+  $('offline-status').textContent = `${daysCounted(saved.length, 'servat')}.${workerReady ? ' Manuale sine interrete aperiri potest.' : ' Applicatio ad usum sine interrete paratur…'}`;
   $('saved-days').innerHTML = saved.map(day => `<button class="saved-day" data-day="${day}">${dateLabel(day)} <span aria-hidden="true">↗</span></button>`).join('');
   $('saved-indicator').hidden = !saved.includes(route.day);
 }
@@ -323,7 +323,7 @@ async function downloadDays(count) {
       completed += 1;
       $('download-progress').value = completed;
     }
-    $('download-status').textContent = `${completed} dies servati: ${dateLabel(days[0], false)} — ${dateLabel(days.at(-1))}.`;
+    $('download-status').textContent = `${daysCounted(completed, 'servat')}: ${dateRange(days[0], days.at(-1))}.`;
     if (navigator.storage?.persist) await navigator.storage.persist();
   } catch (error) {
     $('download-status').textContent = `${completed} / ${days.length} dies servati. ${error.message}`;
@@ -498,7 +498,7 @@ $('forget-days').addEventListener('click', async () => {
   $('forget-days').disabled = true;
   try {
     const removed = await forgetDays();
-    $('download-status').textContent = removed ? `${removed} dies deleti.` : 'Nulli dies servati erant.';
+    $('download-status').textContent = removed ? `${daysCounted(removed, 'delet')}.` : 'Nulli dies servati erant.';
   } catch (error) {
     $('download-status').textContent = 'Dies deleri non potuerunt.';
     console.warn('Manuale forget:', error);
