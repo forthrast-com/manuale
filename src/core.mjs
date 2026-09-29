@@ -123,6 +123,19 @@ export function dateLabel(value, year = true) {
   return `${day.getDate()} ${months[day.getMonth()]}${year ? ` ${day.getFullYear()}` : ''}`;
 }
 
+// A count of days agrees in number, and none is "nulli" rather than a zero:
+// "Nulli dies servati", "1 dies servatus", "7 dies servati".
+export function daysCounted(count, stem) {
+  if (!count) return `Nulli dies ${stem}i`;
+  return `${count} dies ${stem}${count === 1 ? 'us' : 'i'}`;
+}
+
+// One day is not a range, and a range across the new year names both years.
+export function dateRange(first, last) {
+  if (first === last) return dateLabel(first);
+  return `${dateLabel(first, first.slice(0, 4) !== last.slice(0, 4))} — ${dateLabel(last)}`;
+}
+
 export function weekday(value) { return weekdays[new Date(`${value}T12:00:00`).getDay()]; }
 export function weekdayFull(value) { return weekdaysFull[new Date(`${value}T12:00:00`).getDay()]; }
 export function isSunday(value) { return new Date(`${value}T12:00:00`).getDay() === 0; }

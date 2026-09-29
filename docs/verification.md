@@ -122,6 +122,40 @@ scroll-into-view in the automation tool; the visible control worked correctly.
   nothing below it moves when an entry is refused.
 - Today is marked apart from the day being aimed at and the day being read.
 
+## Exaltation of the Cross round, 29 September 2026
+
+Reported on 14 September; checked there and then across the 2026 corpus.
+
+- IM FELL English has no ǽ, Ǽ or combining acute. Chrome's DevTools font
+  report showed sǽcula taking its ǽ, and obœ́diens both its œ and its accent,
+  from Liberation Serif: a browser keeps a base and its mark in one font, so
+  the missing accent took the letter with it. The derived Manuale Fell sets
+  every glyph of both words, in both faces, itself. A test now requires every
+  letter the published calendar prints to be in both reading faces (℣ ℟ ✠ ✙
+  excepted by design) and every base-plus-accent sequence to shape to one glyph.
+- Upstream letters outside the fonts are all corpus typos, nearly all in the
+  Dominican, Cistercian and monastic files this edition does not render:
+  Cyrillic Нос for Hoc and a Cyrillic с inside oсcisiónem, Greek ρ and ό inside pέρsequi and
+  Aρόstolos, ǎ in sǎcula, ǿ in obǿdiens, an Arabic waw in exsultࢱtio. The text
+  is imported verbatim, so they are left for upstream.
+- Matins marks its nocturns and its Te Deum with a bare rubric. Nocturn II's
+  psalms therefore ran on under Lectio 3, and the Te Deum under the last
+  lesson; each now opens its own section.
+- A rite that opens with a rubric before its Incipit (Easter Matins and Lauds,
+  the Chrism Mass) had two Incipit sections in a row; the rubric now opens the
+  one Incipit.
+- Each hour is headed ad with the accusative (Ad Laudes, Ad Primam), as only
+  Vespers was; the screen-reader announcement follows it rather than reading
+  the internal key. The month grid's heading is nominative (September MMXXVI);
+  dates keep the genitive. Counts agree in number (1 dies servatus, nulli
+  dies servati), a one-day range names its day once, and a range across the
+  new year names both years.
+- Paper continues beneath the fixed bottom bar, so the strip mobile browsers
+  leave below it no longer shows text scrolling past.
+- Divinum Officium's Latin Holy Saturday Mass heads a section with the English
+  "Incense" (`missa/Latin/Tempora/Quad6-6r.txt`, `!!Incense`). It is shown as
+  imported; correcting it would be a second entry in source_patches.json.
+
 ## Boundaries
 
 - Actual iOS/Android installation, physical swipe behaviour and wake-lock

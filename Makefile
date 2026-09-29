@@ -1,10 +1,15 @@
-.PHONY: source data build serve test
+.PHONY: source data fonts build serve test
 
 source:
 	python3 tools/fetch_source.py
 
 data: source
 	python3 tools/generate.py
+
+# The reading faces are derived from IM FELL English and checked in; rerun
+# only after changing tools/patch_fonts.py. The output is reproducible.
+fonts:
+	python3 tools/patch_fonts.py
 
 build:
 	python3 tools/build.py

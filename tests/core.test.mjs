@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hourHeading, hours, dateKey, validDate, addDays, weekday, weekdayFull, isSunday, roman, monthGrid, monthLabel, addMonths, isFirstClass, parseRoute, validatePreferences, liturgicalAccent, escapeHtml, storagePrune, isProperSection, blockId, canonicalHour } from '../src/core.mjs';
+import { daysCounted, dateRange, hourHeading, hours, dateKey, validDate, addDays, weekday, weekdayFull, isSunday, roman, monthGrid, monthLabel, addMonths, isFirstClass, parseRoute, validatePreferences, liturgicalAccent, escapeHtml, storagePrune, isProperSection, blockId, canonicalHour } from '../src/core.mjs';
 
 test('local dates do not shift to yesterday east of UTC', () => {
   assert.equal(dateKey(new Date(2026, 8, 5, 0, 5)), '2026-09-05');
@@ -178,4 +178,14 @@ test('every hour of the clock maps to a real office', () => {
 test('each hour is headed ad with the accusative', () => {
   assert.deepEqual(hours.map(hourHeading), ['Ad Matutinum', 'Ad Laudes', 'Ad Primam', 'Ad Tertiam',
     'Ad Sextam', 'Ad Nonam', 'Ad Vesperas', 'Ad Completorium']);
+});
+test('a count of days agrees in number', () => {
+  assert.equal(daysCounted(0, 'servat'), 'Nulli dies servati');
+  assert.equal(daysCounted(1, 'servat'), '1 dies servatus');
+  assert.equal(daysCounted(7, 'delet'), '7 dies deleti');
+});
+test('a range names one day once and both years across the new year', () => {
+  assert.equal(dateRange('2026-09-14', '2026-09-14'), '14 Septembris 2026');
+  assert.equal(dateRange('2026-09-14', '2026-09-20'), '14 Septembris — 20 Septembris 2026');
+  assert.equal(dateRange('2026-12-28', '2027-01-03'), '28 Decembris 2026 — 3 Ianuarii 2027');
 });
