@@ -131,16 +131,22 @@ Reported on 14 September; checked there and then across the 2026 corpus.
   from Liberation Serif: a browser keeps a base and its mark in one font, so
   the missing accent took the letter with it. The derived Manuale Fell sets
   every glyph of both words, in both faces, itself. A test now requires every
-  letter the published calendar prints to be in both reading faces (℣ ℟ ✠ ✙
-  excepted by design) and every base-plus-accent sequence to shape to one glyph.
+  letter the published calendar prints to be in both reading faces (℣ ℟ ✠ ✙,
+  and the Vigil's Α, Ω and Ψ, excepted as signs) and every base-plus-accent
+  sequence to shape to one glyph.
 - Upstream letters outside the fonts are all corpus typos, nearly all in the
   Dominican, Cistercian and monastic files this edition does not render:
   Cyrillic Нос for Hoc and a Cyrillic с inside oсcisiónem, Greek ρ and ό inside pέρsequi and
   Aρόstolos, ǎ in sǎcula, ǿ in obǿdiens, an Arabic waw in exsultࢱtio. The text
-  is imported verbatim, so they are left for upstream.
+  is imported verbatim, so they are left for upstream, with the Vigil's
+  "et Omega;" (`missa/Latin/Tempora/Quad6-6r.txt`), whose English reads
+  "and Omega.".
 - Matins marks its nocturns and its Te Deum with a bare rubric. Nocturn II's
   psalms therefore ran on under Lectio 3, and the Te Deum under the last
-  lesson; each now opens its own section.
+  lesson; each now opens its own section. Across 2026, in both recitation
+  forms, every Te Deum (502) now follows the last lesson, the 92 three-nocturn
+  Matins read Nocturnus I–III each before its lessons, and no heading repeats
+  the one before it.
 - A rite that opens with a rubric before its Incipit (Easter Matins and Lauds,
   the Chrism Mass) had two Incipit sections in a row; the rubric now opens the
   one Incipit.
@@ -152,6 +158,10 @@ Reported on 14 September; checked there and then across the 2026 corpus.
   new year names both years.
 - Paper continues beneath the fixed bottom bar, so the strip mobile browsers
   leave below it no longer shows text scrolling past.
+- The full suite, 33 Python and 25 Node tests, passes against the complete
+  2026 corpus. In the built app at 390 × 844, Chrome's font report shows the
+  Exaltation's Epistle set wholly in Manuale Fell (557 roman glyphs, 16
+  italic); the paper beneath the bar adds no scroll height and takes no taps.
 - Divinum Officium's Latin Holy Saturday Mass heads a section with the English
   "Incense" (`missa/Latin/Tempora/Quad6-6r.txt`, `!!Incense`). It is shown as
   imported; correcting it would be a second entry in source_patches.json.

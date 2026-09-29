@@ -24,7 +24,9 @@ import patch_fonts
 READING = ["manuale_fell.ttf", "manuale_fell_italic.ttf"]
 DISPLAY = "fraunces.ttf"
 # Liturgical signs no bundled face draws; the system's serif supplies them.
-BORROWED = set("℣℟✠✙")
+# The Greek are signs too: at the Easter Vigil Α and Ω are cut into the
+# Paschal candle and the font is breathed upon in the figure of Ψ.
+BORROWED = set("℣℟✠✙ΑΩΨ")
 # Invisible, default-ignorable characters: nothing to draw.
 IGNORABLE = {"​", "︎", "️"}
 
