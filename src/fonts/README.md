@@ -18,9 +18,10 @@ and acute, with a `ccmp` ligature so œ́ becomes one glyph. The licence
 reserves the name, so the bundled result is **Manuale Fell**
 (`manuale_fell.ttf`, `manuale_fell_italic.ttf`). The new glyphs kern as their
 bases do, eased where FELL eases the same pair for its own accented vowels.
-Run `make fonts` after changing the script; the output is byte-for-byte
-reproducible, and the script refuses a source that is not the upstream blob
-above. Nothing else modifies the outlines.
+Run `make fonts` after changing the script; every table of the output is
+reproducible (the bytes only with the same fontTools), and the script
+refuses a source that is not the upstream blob above. Nothing else modifies
+the outlines.
 
 Both faces are bundled and precached for offline use. Uncommon liturgical
 symbols (℣, ℟, ✠) can fall back to the system's serif fonts.

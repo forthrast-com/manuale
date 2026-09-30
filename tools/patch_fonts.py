@@ -15,8 +15,9 @@ Added, all as composites of FELL's own outlines:
   the same pair for its own accented vowel (T before á, V before ó).
 
 The licence reserves the name IM FELL English, so the result is renamed.
-Run with fontTools after changing this file; the outputs are checked in, and
-the output is byte-for-byte reproducible so that rerunning changes nothing.
+Run with fontTools after changing this file; the outputs are checked in.
+Every table is reproducible; the bytes are too with the same fontTools, but
+another version may pack the same GSUB differently.
 """
 
 import hashlib

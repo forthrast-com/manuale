@@ -7,6 +7,7 @@ takes its letter with it. That is how sǽcula and obœ́diens came to look broke
 
 from functools import cache
 import gzip
+import io
 import json
 from pathlib import Path
 import re
@@ -105,13 +106,19 @@ class ReadingFaceTests(unittest.TestCase):
 
 class DerivedFaceTests(unittest.TestCase):
     def test_the_patch_reproduces_the_bundled_faces(self):
+        # Table by table, not byte for byte: fontTools versions pack the same
+        # GSUB differently, and so differ in offsets and checksums alone.
+        def tables(path):
+            dump = io.StringIO()
+            TTFont(path).saveXML(dump)
+            return [line for line in dump.getvalue().splitlines()
+                    if "checkSumAdjustment" not in line and "<ttFont " not in line]
         with tempfile.TemporaryDirectory() as directory:
             for source, target, style in patch_fonts.FACES:
                 patch_fonts.patch(source, target, style, output=Path(directory))
                 with self.subTest(face=target):
-                    self.assertEqual((Path(directory) / target).read_bytes(),
-                                     (ROOT / "src/fonts" / target).read_bytes(),
-                                     "rerun tools/patch_fonts.py and commit the result")
+                    self.assertTrue(tables(Path(directory) / target) == tables(ROOT / "src/fonts" / target),
+                                    "rerun make fonts and commit the result")
 
     def test_the_documented_upstream_faces_are_the_ones_bundled(self):
         documented = set(re.findall(r"`([0-9a-f]{40})`", (ROOT / "src/fonts/README.md").read_text()))
